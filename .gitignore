@@ -1,0 +1,32 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Personal / Secret files (Never commit these)
+*.key
+*.pem
+.env
+.env.local
+.netrc
+
+# Editor backups and swap files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Local overrides
+*.local
+.bashrc_local
+.zshrc_local
+
+# Extension-specific
+.python-version
+.node-version
+.ruby-version
