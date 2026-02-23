@@ -7,7 +7,8 @@ echo "Starting macOS setup..."
 # Install Homebrew if not found
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # NONINTERACTIVE=1 を指定して、ENTERキーの入力をスキップする
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     
     # Add brew to PATH for the current session
     if [[ -f /opt/homebrew/bin/brew ]]; then
@@ -30,7 +31,8 @@ if [ -f "$BREWFILE" ]; then
     fi
     
     # brew bundle を実行。エラーがあればここでスクリプトが停止します。
-    brew bundle --file="$BREWFILE"
+    # --verbose を追加して進捗を表示するようにしました
+    brew bundle --file="$BREWFILE" --verbose
 fi
 
 echo "macOS setup complete."
