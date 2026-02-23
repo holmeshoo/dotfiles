@@ -4,55 +4,55 @@ set -e
 
 # --- Configuration ---
 REPO_URL="https://github.com/holmeshoo/dotfiles.git"
+TARBALL_URL="https://github.com/holmeshoo/dotfiles/archive/refs/heads/main.tar.gz"
 DOTFILES_DIR="$HOME/dotfiles"
 
 echo "Starting dotfiles installation..."
 
-# 0. Ensure git is installed
-if ! command -v git &> /dev/null; then
-    echo "git not found. Installing git..."
-    OS="$(uname)"
-    if [ "$OS" == "Darwin" ]; then
-        echo "Checking for macOS Command Line Tools..."
-        if ! xcode-select -p &> /dev/null; then
-            echo "Command Line Tools not found. Requesting installation..."
-            xcode-select --install
-            echo "Please complete the Command Line Tools installation dialog and run this script again."
-            exit 1
-        fi
-        
-        # If CLI tools are there but git is still not in path, try Homebrew
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        if [[ -f /opt/homebrew/bin/brew ]]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
-        if [[ -f /usr/local/bin/brew ]]; then eval "$(/usr/local/bin/brew shellenv)"; fi
-    elif [ "$OS" == "Linux" ]; then
+# 0. OS Specific: Ensure basic requirements
+OS="$(uname)"
+if [ "$OS" == "Darwin" ]; then
+    if command -v xcodebuild &> /dev/null; then
+        echo "Attempting to accept Xcode license..."
+        sudo xcodebuild -license accept || echo "Skipping Xcode license."
+    fi
+elif [ "$OS" == "Linux" ]; then
+    if ! command -v git &> /dev/null; then
+        echo "git not found. Installing git..."
         if command -v apt-get &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y git
         elif command -v dnf &> /dev/null; then
             sudo dnf install -y git
         elif command -v pacman &> /dev/null; then
             sudo pacman -S --noconfirm git
-        else
-            echo "Error: Package manager not supported. Please install git manually."
-            exit 1
         fi
     fi
 fi
 
-# 1. Clone or Update dotfiles repository
+# 1. Get the repository (Clone or Download Tarball)
 if [ ! -d "$DOTFILES_DIR" ]; then
-    echo "Cloning repository to $DOTFILES_DIR..."
-    git clone "$REPO_URL" "$DOTFILES_DIR"
+    if command -v git &> /dev/null; then
+        echo "Cloning repository to $DOTFILES_DIR..."
+        git clone "$REPO_URL" "$DOTFILES_DIR"
+    else
+        echo "git not found. Downloading repository as a tarball..."
+        mkdir -p "$DOTFILES_DIR"
+        curl -L "$TARBALL_URL" | tar -xz -C "$DOTFILES_DIR" --strip-components=1
+    fi
 else
-    echo "Dotfiles directory already exists. Pulling latest changes..."
-    cd "$DOTFILES_DIR" && git pull
+    echo "Dotfiles directory already exists. Updating..."
+    if [ -d "$DOTFILES_DIR/.git" ]; then
+        cd "$DOTFILES_DIR" && git pull
+    else
+        echo "Non-git directory found. Re-downloading..."
+        curl -L "$TARBALL_URL" | tar -xz -C "$DOTFILES_DIR" --strip-components=1
+    fi
 fi
 
 cd "$DOTFILES_DIR"
 SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 
 # 2. Link dotfiles FIRST
-# Ensure settings are applied before other installations
 echo "Creating symlinks..."
 FILES=(
     "common/.gitconfig"
@@ -63,7 +63,6 @@ FILES=(
     "common/.bashrc"
     "common/.zshrc"
 )
-OS="$(uname)"
 if [ "$OS" == "Linux" ]; then
     FILES+=("linux/.bashrc_local")
 fi
@@ -83,6 +82,12 @@ done
 # 3. Base OS Setup (Homebrew, apt-update, etc.)
 if [ "$OS" == "Darwin" ]; then
     bash "$SCRIPTS_DIR/setup-macos.sh"
+    # Ensure brew is available in the current session for subsequent scripts
+    if [ -f /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -f /usr/local/bin/brew ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
 elif [ "$OS" == "Linux" ]; then
     bash "$SCRIPTS_DIR/setup-linux.sh"
 fi
