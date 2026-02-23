@@ -7,17 +7,13 @@ echo "Installing Heavy Applications..."
 OS="$(uname)"
 
 if [ "$OS" == "Darwin" ]; then
-    # macOS: Docker Desktop, VSCode, Browsers, etc.
-    echo "Installing applications via Homebrew Cask..."
+    # macOS: VSCode, Dia browser, and Lightweight Docker (Colima)
+    echo "Installing applications..."
     
-    # List of "package:app_folder_name" pairs
+    # 1. Cask applications (GUI)
     apps=(
-        "docker:Docker.app"
         "visual-studio-code:Visual Studio Code.app"
-        "slack:Slack.app"
-        "discord:Discord.app"
-        "arc:Arc.app"
-        "vivaldi:Vivaldi.app"
+        "thebrowsercompany-dia:Dia.app"
     )
 
     for item in "${apps[@]}"; do
@@ -32,6 +28,15 @@ if [ "$OS" == "Darwin" ]; then
             brew install --cask "$app"
         fi
     done
+
+    # 2. Lightweight Docker setup (Colima + Docker CLI)
+    if ! command -v colima &> /dev/null; then
+        echo "Installing Colima and Docker CLI..."
+        brew install colima docker docker-compose
+        echo "Note: Run 'colima start' to start the Docker daemon."
+    else
+        echo "Colima is already installed. Skipping..."
+    fi
 elif [ "$OS" == "Linux" ]; then
     # Linux: Docker Engine (Official Script)
     if ! command -v docker &> /dev/null; then
@@ -50,6 +55,16 @@ elif [ "$OS" == "Linux" ]; then
         rm -f packages.microsoft.gpg
         sudo apt-get update
         sudo apt-get install -y code
+    fi
+
+    # Vivaldi for Linux
+    if ! command -v vivaldi &> /dev/null; then
+        echo "Installing Vivaldi browser..."
+        if command -v apt-get &> /dev/null; then
+            wget -qO- https://repo.vivaldi.com/archive/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/vivaldi-browser.gpg
+            echo "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=$(dpkg --print-architecture)] https://repo.vivaldi.com/archive/deb/ stable main" | sudo tee /etc/apt/sources.list.d/vivaldi.list
+            sudo apt-get update && sudo apt-get install -y vivaldi-stable
+        fi
     fi
 fi
 
