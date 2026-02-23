@@ -5,9 +5,9 @@ echo "Installing Heavy Applications..."
 OS="$(uname)"
 
 if [ "$OS" == "Darwin" ]; then
-    # macOS: Docker Desktop and VSCode
+    # macOS: Docker Desktop, VSCode, Browsers, etc.
     # Assuming Homebrew is installed
-    brew install --cask docker visual-studio-code slack discord
+    brew install --cask docker visual-studio-code slack discord arc vivaldi
 elif [ "$OS" == "Linux" ]; then
     # Linux: Docker Engine (Official Script)
     if ! command -v docker &> /dev/null; then

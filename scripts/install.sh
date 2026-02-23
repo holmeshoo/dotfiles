@@ -53,6 +53,7 @@ FILES=(
     "common/.vimrc"
     "common/.editorconfig"
     "common/.aliases"
+    "common/.functions"
     "common/.bashrc"
     "common/.zshrc"
 )
@@ -79,6 +80,9 @@ if [ "$OS" == "Darwin" ]; then
 elif [ "$OS" == "Linux" ]; then
     bash "$SCRIPTS_DIR/setup-linux.sh"
 fi
+
+# 3.5 Shell Setup (Oh My Zsh)
+bash "$SCRIPTS_DIR/setup-shell.sh"
 
 # 4. Optional Setup
 confirm() {

@@ -1,0 +1,28 @@
+# Shell Functions
+
+# Translation (requires translate-shell)
+# Usage: transen "Hello"
+transen () {
+    trans en:ja "$1"
+}
+
+# Usage: transja "こんにちは"
+transja () {
+    trans ja:en "$1"
+}
+
+# Usage: stransen "Hello" (Brief mode)
+stransen () {
+    trans -b en:ja "$1"
+}
+
+# Usage: stransja "こんにちは" (Brief mode)
+stransja () {
+    trans -b ja:en "$1"
+}
+
+# Make a directory and enter it
+# Usage: mkd my_folder
+mkd() {
+    mkdir -p "$@" && cd "$@"
+}
