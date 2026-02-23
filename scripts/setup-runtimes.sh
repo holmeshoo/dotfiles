@@ -4,11 +4,9 @@ set -e
 
 echo "Setting up Language Runtimes with mise..."
 
-# Fix potential permission issues if previous run used sudo incorrectly
-if [ -d "$HOME/.local/share/mise" ]; then
-    echo "Ensuring correct permissions for mise..."
-    sudo chown -R $(whoami) "$HOME/.local/share/mise" "$HOME/.local/bin" 2>/dev/null || true
-fi
+# Fix potential permission issues across ALL mise-related directories
+echo "Ensuring correct permissions for local directories..."
+sudo chown -R $(whoami) "$HOME/.local" "$HOME/.cache" "$HOME/.config" 2>/dev/null || true
 
 # 1. Install mise (Universal tool manager)
 if ! command -v mise &> /dev/null; then
