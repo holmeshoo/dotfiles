@@ -1,5 +1,7 @@
 # dotfiles
 
+⚠️ **Work In Progress**: This repository is currently under development and being actively updated.
+
 Multi-platform dotfiles for macOS, Linux, and Windows.
 
 ## Structure

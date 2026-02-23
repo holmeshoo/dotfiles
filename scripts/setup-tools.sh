@@ -9,26 +9,25 @@ OS="$(uname)"
 if [ "$OS" == "Darwin" ]; then
     echo "Installing core tools via Homebrew..."
     
-    # Map brew package IDs to their main executable names
-    declare -A tool_check
-    tool_check=(
-        ["micro"]="micro"
-        ["git"]="git"
-        ["tree"]="tree"
-        ["curl"]="curl"
-        ["cmake"]="cmake"
-        ["llvm"]="clang"
-        ["btop"]="btop"
-        ["htop"]="htop"
-        ["translate-shell"]="trans"
+    # List of "package:command" pairs
+    tools=(
+        "micro:micro"
+        "git:git"
+        "tree:tree"
+        "curl:curl"
+        "cmake:cmake"
+        "llvm:clang"
+        "btop:btop"
+        "htop:htop"
+        "translate-shell:trans"
     )
 
-    for tool in "${!tool_check[@]}"; do
-        cmd="${tool_check[$tool]}"
+    for item in "${tools[@]}"; do
+        tool="${item%%:*}"
+        cmd="${item##*:}"
         
-        # Check if tool is in brew list OR the command is already available in PATH
         if brew list "$tool" &>/dev/null || command -v "$cmd" &>/dev/null; then
-            echo "$tool is already available (as $cmd). Skipping..."
+            echo "$tool is already available. Skipping..."
         else
             echo "Installing $tool..."
             brew install "$tool"
