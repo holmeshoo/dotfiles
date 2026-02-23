@@ -18,8 +18,10 @@ echo "Starting dotfiles installation..."
 # 0. OS Specific: Ensure basic requirements
 OS="$(uname)"
 if [ "$OS" == "Darwin" ]; then
-    if command -v xcodebuild &> /dev/null; then
-        echo "Attempting to accept Xcode license..."
+    # Check if xcodebuild is available AND points to a full Xcode installation
+    # This avoids the "requires Xcode" error on systems with only Command Line Tools
+    if command -v xcodebuild &> /dev/null && xcode-select -p | grep -q "Xcode.app"; then
+        echo "Xcode detected. Attempting to accept license..."
         sudo xcodebuild -license accept || echo "Skipping Xcode license."
     fi
 elif [ "$OS" == "Linux" ]; then
