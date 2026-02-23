@@ -9,7 +9,16 @@ OS="$(uname)"
 if [ "$OS" == "Darwin" ]; then
     # macOS: Docker Desktop, VSCode, Browsers, etc.
     echo "Installing applications via Homebrew Cask..."
-    brew install --cask docker visual-studio-code slack discord arc vivaldi
+    
+    apps=(docker visual-studio-code slack discord arc vivaldi)
+    for app in "${apps[@]}"; do
+        if ! brew list --cask "$app" &>/dev/null; then
+            echo "Installing $app..."
+            brew install --cask "$app"
+        else
+            echo "$app is already installed. Skipping..."
+        fi
+    done
 elif [ "$OS" == "Linux" ]; then
     # Linux: Docker Engine (Official Script)
     if ! command -v docker &> /dev/null; then
