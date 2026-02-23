@@ -4,13 +4,21 @@ set -e
 
 echo "Setting up Language Runtimes with mise..."
 
-# Fix potential permission issues across ALL mise-related directories
+# 0. Clean up potential root-owned or broken installations
+if [ "$1" == "--clean" ]; then
+    echo "Cleaning up existing mise installation..."
+    sudo rm -rf "$HOME/.local/bin/mise" "$HOME/.local/share/mise" "$HOME/.cache/mise" "$HOME/.config/mise" 2>/dev/null || true
+fi
+
+# Fix potential permission issues across local directories
 echo "Ensuring correct permissions for local directories..."
 sudo chown -R $(whoami) "$HOME/.local" "$HOME/.cache" "$HOME/.config" 2>/dev/null || true
 
 # 1. Install mise (Universal tool manager)
 if ! command -v mise &> /dev/null; then
     echo "Installing mise..."
+    # Ensure bin directory exists
+    mkdir -p "$HOME/.local/bin"
     curl https://mise.jdx.dev/install.sh | sh
     # Add to PATH for current session
     export PATH="$HOME/.local/bin:$PATH"
