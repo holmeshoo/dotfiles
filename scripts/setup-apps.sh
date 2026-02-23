@@ -10,13 +10,25 @@ if [ "$OS" == "Darwin" ]; then
     # macOS: Docker Desktop, VSCode, Browsers, etc.
     echo "Installing applications via Homebrew Cask..."
     
-    apps=(docker visual-studio-code slack discord arc vivaldi)
-    for app in "${apps[@]}"; do
-        if ! brew list --cask "$app" &>/dev/null; then
+    # Map brew cask IDs to their actual .app folder names
+    declare -A app_check
+    app_check=(
+        ["docker"]="Docker.app"
+        ["visual-studio-code"]="Visual Studio Code.app"
+        ["slack"]="Slack.app"
+        ["discord"]="Discord.app"
+        ["arc"]="Arc.app"
+        ["vivaldi"]="Vivaldi.app"
+    )
+
+    for app in "${!app_check[@]}"; do
+        app_path="/Applications/${app_check[$app]}"
+        
+        if brew list --cask "$app" &>/dev/null || [ -d "$app_path" ]; then
+            echo "$app is already installed at $app_path. Skipping..."
+        else
             echo "Installing $app..."
             brew install --cask "$app"
-        else
-            echo "$app is already installed. Skipping..."
         fi
     done
 elif [ "$OS" == "Linux" ]; then
