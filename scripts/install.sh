@@ -13,10 +13,16 @@ if ! command -v git &> /dev/null; then
     echo "git not found. Installing git..."
     OS="$(uname)"
     if [ "$OS" == "Darwin" ]; then
-        # macOS: Trigger Command Line Tools installation or use Homebrew
-        # Note: Homebrew installer will also install git
+        echo "Checking for macOS Command Line Tools..."
+        if ! xcode-select -p &> /dev/null; then
+            echo "Command Line Tools not found. Requesting installation..."
+            xcode-select --install
+            echo "Please complete the Command Line Tools installation dialog and run this script again."
+            exit 1
+        fi
+        
+        # If CLI tools are there but git is still not in path, try Homebrew
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        # Add brew to PATH for this session to get git
         if [[ -f /opt/homebrew/bin/brew ]]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
         if [[ -f /usr/local/bin/brew ]]; then eval "$(/usr/local/bin/brew shellenv)"; fi
     elif [ "$OS" == "Linux" ]; then
