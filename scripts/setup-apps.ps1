@@ -3,7 +3,8 @@ Write-Host "Installing Heavy Applications..." -ForegroundColor Cyan
 $apps = @(
     "Microsoft.VisualStudioCode",
     "Vivaldi.Vivaldi",
-    "Docker.DockerCLI"
+    "Docker.DockerCLI",
+    "Docker.DockerCompose"
 )
 
 foreach ($app in $apps) {
