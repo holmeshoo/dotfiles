@@ -2,6 +2,12 @@
 
 set -e
 
+# --- Sudo Keep-alive ---
+# Ask for sudo upfront and keep it alive
+echo "Some steps require sudo. Please enter your password:"
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
 # --- Configuration ---
 REPO_URL="https://github.com/holmeshoo/dotfiles.git"
 TARBALL_URL="https://github.com/holmeshoo/dotfiles/archive/refs/heads/main.tar.gz"

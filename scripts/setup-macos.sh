@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo "Starting macOS setup..."
 
 # Install Homebrew if not found
@@ -19,6 +21,15 @@ fi
 BREWFILE="$(dirname "$0")/../macos/Brewfile"
 if [ -f "$BREWFILE" ]; then
     echo "Installing packages from Brewfile..."
+    
+    # gitが既存のツールと競合してエラーになることが多いため、
+    # リンクが壊れている場合は事前に修復を試みる
+    if brew list git &>/dev/null; then
+        echo "Git is already installed via Homebrew. Ensuring it is linked..."
+        brew link --overwrite git
+    fi
+    
+    # brew bundle を実行。エラーがあればここでスクリプトが停止します。
     brew bundle --file="$BREWFILE"
 fi
 
