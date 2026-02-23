@@ -8,14 +8,28 @@ Multi-platform dotfiles for macOS, Linux, and Windows.
 - `macos/`: macOS specific files (Brewfile, etc.)
 - `linux/`: Linux specific files (.bashrc_local, etc.)
 - `windows/`: Windows specific files (PowerShell profile, etc.)
-- `scripts/`: Installation scripts
+- `scripts/`:
+    - `install.sh`: Main orchestrator (handles symlinking and calls other scripts).
+    - `setup-macos.sh` / `setup-linux.sh`: OS-specific initializations.
+    - `setup-tools.sh`: Core CLI tools (micro, git, etc.).
+    - `setup-runtimes.sh`: Language runtimes (Node.js, Python via `mise`).
+    - `setup-apps.sh`: Heavy applications (Docker, VSCode).
 
 ## Installation
 
-### macOS / Linux
+### macOS / Linux (One-liner)
+
+This script will automatically install `git` and `Homebrew` (on macOS) if they are missing, clone this repository to `~/dotfiles`, and set up your environment.
 
 ```bash
-chmod +x scripts/install.sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)"
+```
+
+### Manual Installation
+
+```bash
+git clone https://github.com/holmeshoo/dotfiles.git ~/dotfiles
+cd ~/dotfiles
 ./scripts/install.sh
 ```
 
@@ -27,8 +41,6 @@ chmod +x scripts/install.sh
 
 ## Customization
 
-- Edit files in `common/` for shared settings.
-- Platform-specific overrides can be added to:
-  - `linux/.bashrc_local`
-  - `macos/` (e.g., Brewfile)
-  - `windows/Microsoft.PowerShell_profile.ps1`
+- **Symlinks**: Edit `scripts/install.sh` to add or remove files to be linked.
+- **Tools/Apps**: Modify the corresponding `scripts/setup-*.sh` files.
+- **Local Overrides**: Use `~/.gitconfig.local`, `~/.bashrc_local`, or `~/.zshrc_local` for machine-specific settings.

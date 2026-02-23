@@ -1,5 +1,5 @@
-# tap "homebrew/bundle"
-# brew "git"
+tap "homebrew/bundle"
+brew "git"
 # brew "vim"
 # cask "visual-studio-code"
 # cask "iterm2"

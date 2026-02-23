@@ -5,6 +5,14 @@ $homeDir = $HOME
 
 Write-Host "Setting up dotfiles from $dotfilesDir"
 
+# Tool Installation (WinGet)
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    Write-Host "Installing tools via winget..."
+    # winget install --id Git.Git -e --source winget
+} else {
+    Write-Warning "winget not found. Skipping tool installation."
+}
+
 # Common files
 $files = @(
     "common\.gitconfig",
