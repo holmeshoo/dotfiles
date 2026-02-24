@@ -46,15 +46,19 @@ elif [ "$OS" == "Linux" ]; then
     fi
 
     # VSCode for Linux (using apt)
-    if command -v apt-get &> /dev/null; then
-        echo "Installing VS Code..."
-        sudo apt-get install -y wget gpg
-        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-        sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-        sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
-        rm -f packages.microsoft.gpg
-        sudo apt-get update
-        sudo apt-get install -y code
+    if ! command -v code &> /dev/null; then
+        if command -v apt-get &> /dev/null; then
+            echo "Installing VS Code..."
+            sudo apt-get install -y wget gpg
+            wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+            sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+            sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
+            rm -f packages.microsoft.gpg
+            sudo apt-get update
+            sudo apt-get install -y code
+        fi
+    else
+        echo "VS Code is already installed. Skipping..."
     fi
 
     # Vivaldi for Linux
@@ -65,6 +69,8 @@ elif [ "$OS" == "Linux" ]; then
             echo "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=$(dpkg --print-architecture)] https://repo.vivaldi.com/archive/deb/ stable main" | sudo tee /etc/apt/sources.list.d/vivaldi.list
             sudo apt-get update && sudo apt-get install -y vivaldi-stable
         fi
+    else
+        echo "Vivaldi is already installed. Skipping..."
     fi
 fi
 
