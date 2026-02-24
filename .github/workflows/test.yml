@@ -22,7 +22,7 @@ jobs:
       - name: Uninstall pre-installed tools (Simulate fresh OS)
         run: |
           echo "Uninstalling Homebrew..."
-          sudo rm -f /etc/paths.d/homebrew
+          # sudo rm -f /etc/paths.d/homebrew
           
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
 
