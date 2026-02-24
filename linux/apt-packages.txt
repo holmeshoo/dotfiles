@@ -1,0 +1,12 @@
+micro
+git
+tree
+curl
+build-essential
+cmake
+gdb
+clang
+btop
+htop
+zsh
+translate-shell

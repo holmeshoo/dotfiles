@@ -13,41 +13,20 @@ fi
 # 1. Install mise (Universal tool manager)
 if ! command -v mise &> /dev/null; then
     echo "Installing mise..."
-    # Ensure bin directory exists
     mkdir -p "$HOME/.local/bin"
     curl https://mise.jdx.dev/install.sh | sh
-    # Add to PATH for current session
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Initialize mise for current session
+# Initialize mise
 eval "$(mise activate bash)"
 
-# 2. Install Node.js (Latest LTS)
-echo "Installing Node.js..."
-mise use -g node@lts
-
-# 3. Install Python and uv
-echo "Installing uv (Python package manager)..."
-mise use -g uv@latest
-
-# Refresh mise environment to make 'uv' command available
-eval "$(mise activate bash)"
-
-echo "Setting up Python via uv..."
-uv python install
-
-# 4. Install Rust
-echo "Installing Rust..."
-mise use -g rust@latest
-
-# 5. Install Java (OpenJDK 21 LTS)
-echo "Installing Java..."
-mise use -g java@openjdk-21
-
-# 6. Install Go (Latest)
-echo "Installing Go..."
-mise use -g go@latest
+# 2. Install all tools defined in .mise.toml
+MISE_CONFIG="$(dirname "$0")/../common/.mise.toml"
+if [ -f "$MISE_CONFIG" ]; then
+    echo "Installing runtimes from $MISE_CONFIG..."
+    # mise install は設定ファイルに書かれたものを一括で入れる
+    mise install --yes --config "$MISE_CONFIG"
+fi
 
 echo "Runtimes setup complete!"
-echo "Note: Restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to use these tools."

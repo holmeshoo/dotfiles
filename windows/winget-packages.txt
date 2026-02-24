@@ -1,0 +1,8 @@
+zyedidia.micro
+Git.Git
+aristocratos.btop
+GNU.Wget
+Microsoft.VisualStudioCode
+Vivaldi.Vivaldi
+Docker.DockerCLI
+Docker.DockerCompose

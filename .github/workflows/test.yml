@@ -19,15 +19,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: Uninstall pre-installed tools (Simulate fresh OS)
-      #   run: |
-      #     echo "Uninstalling Homebrew..."
-      #     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
-      #     sudo rm -f /etc/paths.d/homebrew
-      #     sudo rm -rf /opt/homebrew
-      #     echo "Uninstalling xcode..."
-      #     sudo rm -rf /Library/Developer/CommandLineTools
-      #     echo "Simulated a fresh macOS environment."
+      - name: Uninstall pre-installed tools (Simulate fresh OS)
+        run: |
+          echo "Uninstalling Homebrew..."
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
+          sudo rm -f /etc/paths.d/homebrew
+          sudo rm -rf /opt/homebrew
+          echo "Uninstalling xcode..."
+          sudo rm -rf /Library/Developer/CommandLineTools
+          echo "Simulated a fresh macOS environment."
 
       - name: Setup Dotfiles (macOS)
         run: |
@@ -72,14 +72,20 @@ jobs:
       - name: Verify Installation (Windows)
         shell: pwsh
         run: |
-          # Check symlinks
+          $homeDir = $HOME
+          Write-Host "Checking files in: $homeDir"
+          
+          # install.ps1 creates filenames like ".gitconfig" in the $HOME directory
           $files = @(".gitconfig", ".vimrc", ".editorconfig", ".functions")
+          
           foreach ($f in $files) {
-            $path = Join-Path $HOME $f
+            $path = Join-Path $homeDir $f
             if (Test-Path $path) {
-              Write-Host "✓ Found: $f"
+              Write-Host "✓ Found: $f ($path)" -ForegroundColor Green
             } else {
-              Write-Error "✗ Missing: $f"
+              Write-Host "✗ Missing: $f ($path)" -ForegroundColor Red
+              # Debug: list all dotfiles in home
+              Get-ChildItem -Path $homeDir -Filter ".*" | Select-Object Name
               exit 1
             }
           }
@@ -88,7 +94,7 @@ jobs:
           $cmds = @("git", "micro")
           foreach ($c in $cmds) {
             if (Get-Command $c -ErrorAction SilentlyContinue) {
-              Write-Host "✓ Command available: $c"
+              Write-Host "✓ Command available: $c" -ForegroundColor Green
             } else {
               Write-Warning "✗ Command missing: $c"
             }

@@ -1,0 +1,7 @@
+[tools]
+node = "lts"
+python = "latest"
+uv = "latest"
+rust = "latest"
+go = "latest"
+java = "openjdk-21"

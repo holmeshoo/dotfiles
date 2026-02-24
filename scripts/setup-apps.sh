@@ -7,36 +7,8 @@ echo "Installing Heavy Applications..."
 OS="$(uname)"
 
 if [ "$OS" == "Darwin" ]; then
-    # macOS: VSCode, Dia browser, and Lightweight Docker (Colima)
-    echo "Installing applications..."
-    
-    # 1. Cask applications (GUI)
-    apps=(
-        "visual-studio-code:Visual Studio Code.app"
-        "thebrowsercompany-dia:Dia.app"
-    )
-
-    for item in "${apps[@]}"; do
-        app="${item%%:*}"
-        app_name="${item##*:}"
-        app_path="/Applications/$app_name"
-        
-        if brew list --cask "$app" &>/dev/null || [ -d "$app_path" ]; then
-            echo "$app is already installed at $app_path. Skipping..."
-        else
-            echo "Installing $app..."
-            brew install --cask "$app"
-        fi
-    done
-
-    # 2. Lightweight Docker setup (Colima + Docker CLI)
-    if ! command -v colima &> /dev/null; then
-        echo "Installing Colima and Docker CLI..."
-        brew install colima docker docker-compose
-        echo "Note: Run 'colima start' to start the Docker daemon."
-    else
-        echo "Colima is already installed. Skipping..."
-    fi
+    # macOS のアプリは setup-tools.sh で実行される brew bundle (Brewfile) に集約されました。
+    echo "macOS apps are managed via Brewfile in the tools step."
 elif [ "$OS" == "Linux" ]; then
     # Linux: Docker Engine (Official Script)
     if ! command -v docker &> /dev/null; then
@@ -49,16 +21,10 @@ elif [ "$OS" == "Linux" ]; then
     if ! command -v code &> /dev/null; then
         if command -v apt-get &> /dev/null; then
             echo "Installing VS Code..."
-            sudo apt-get install -y wget gpg
-            wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-            sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-            sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
-            rm -f packages.microsoft.gpg
-            sudo apt-get update
-            sudo apt-get install -y code
+            wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/vscode.gpg > /dev/null
+            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/vscode.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+            sudo apt-get update && sudo apt-get install -y code
         fi
-    else
-        echo "VS Code is already installed. Skipping..."
     fi
 
     # Vivaldi for Linux
@@ -69,8 +35,6 @@ elif [ "$OS" == "Linux" ]; then
             echo "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=$(dpkg --print-architecture)] https://repo.vivaldi.com/archive/deb/ stable main" | sudo tee /etc/apt/sources.list.d/vivaldi.list
             sudo apt-get update && sudo apt-get install -y vivaldi-stable
         fi
-    else
-        echo "Vivaldi is already installed. Skipping..."
     fi
 fi
 

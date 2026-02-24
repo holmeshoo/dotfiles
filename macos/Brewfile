@@ -1,4 +1,19 @@
+# CLI Tools
+brew "micro"
 brew "git"
-# brew "vim"
-# cask "visual-studio-code"
-# cask "iterm2"
+brew "tree"
+brew "curl"
+brew "cmake"
+brew "llvm"
+brew "btop"
+brew "htop"
+brew "zsh"
+brew "translate-shell"
+brew "colima"
+brew "docker"
+brew "docker-compose"
+
+# GUI Apps
+cask "visual-studio-code"
+cask "thebrowsercompany-dia"
+cask "vivaldi"
