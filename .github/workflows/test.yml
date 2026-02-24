@@ -31,7 +31,8 @@ jobs:
 
       - name: Setup Dotfiles (macOS)
         run: |
-          yes "y" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)"
+          # Use explicit flags for non-interactive setup in CI
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)" -- --core --runtime
         env:
           SUDO_ASKPASS: /usr/bin/true
 
@@ -47,8 +48,8 @@ jobs:
 
   #     - name: Setup Dotfiles (Linux)
   #       run: |
-  #         # Use yes command to handle interactive prompts
-  #         yes "y" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)"
+  #         # Use explicit flags for non-interactive setup in CI
+  #         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)" -- --core --runtime
 
   #     - name: Verify Installation (Linux)
   #       run: |
@@ -63,7 +64,7 @@ jobs:
   #     - name: Setup Dotfiles (Windows)
   #       shell: pwsh
   #       run: |
-  #         # Windows execution (install.ps1 is designed to be CI-aware or handled by input redirection if needed)
+  #         # Windows execution
   #         .\scripts\install.ps1
   #       env:
   #         CI: true
