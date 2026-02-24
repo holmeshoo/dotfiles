@@ -24,16 +24,23 @@ jobs:
           echo "Uninstalling Homebrew..."
           curl -fsSL -o uninstall_brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh
           chmod +x uninstall_brew.sh
-          # Ignore errors from uninstaller and force delete remaining dirs
           ./uninstall_brew.sh --force || true
           
           echo "Forcibly removing remaining Homebrew/Xcode files..."
+          # システムフラグ（変更禁止など）を解除してから削除
+          sudo chflags -R nouchg /opt/homebrew /usr/local/Homebrew 2>/dev/null || true
           sudo rm -rf /opt/homebrew
           sudo rm -rf /usr/local/Homebrew
           sudo rm -rf /usr/local/bin/brew
           sudo rm -rf /etc/paths.d/homebrew
           sudo rm -rf /Library/Developer/CommandLineTools
           sudo xcode-select --reset || true
+          
+          # 削除できたか確認（デバッグ用）
+          if [ -d "/opt/homebrew" ]; then
+            echo "Warning: /opt/homebrew still exists. Listing contents:"
+            ls -la /opt/homebrew
+          fi
           
           echo "Simulated a fresh macOS environment."
 
