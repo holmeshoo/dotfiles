@@ -22,9 +22,9 @@ jobs:
       - name: Uninstall pre-installed tools (Simulate fresh OS)
         run: |
           echo "Uninstalling Homebrew..."
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
           sudo rm -f /etc/paths.d/homebrew
           sudo rm -rf /opt/homebrew
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
           echo "Uninstalling xcode..."
           sudo rm -rf /Library/Developer/CommandLineTools
           echo "Simulated a fresh macOS environment."
