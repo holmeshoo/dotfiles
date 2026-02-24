@@ -12,21 +12,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Dotfiles (Dry Run / Non-interactive)
+      - name: Uninstall pre-installed tools (Simulate fresh OS)
         run: |
-          # 権限の付与
+          echo "Uninstalling Homebrew..."
+          # Download and run the official uninstaller script non-interactively
+          curl -fsSL -o uninstall_brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh
+          chmod +x uninstall_brew.sh
+          ./uninstall_brew.sh --force
+          
+          # Remove remaining Homebrew directories
+          sudo rm -rf /opt/homebrew
+          sudo rm -rf /usr/local/Homebrew
+          sudo rm -rf /usr/local/bin/brew
+          
+          echo "Removing Xcode Command Line Tools..."
+          sudo rm -rf /Library/Developer/CommandLineTools
+          # Reset xcode-select to ensure it doesn't point to the full Xcode app
+          sudo xcode-select --reset || true
+          
+          echo "Simulated a fresh macOS environment."
+
+      - name: Setup Dotfiles (Fresh Install)
+        run: |
           chmod +x scripts/*.sh
           
           # インストール実行
-          # 注意: GUIアプリやDocker(Colima)はCI環境では動作が不安定または制限があるため、
-          # ここでは Core と Language のみをテストします
+          # "y" を渡して「全部入れる」を選択します
           echo "y" | ./scripts/install.sh
         env:
-          # CI環境での sudo パスワード要求を回避する設定
+          # CI環境での sudo パスワード要求を回避
           SUDO_ASKPASS: /usr/bin/true
 
       - name: Verify Installation
         run: |
-          # 実行中のパスを反映させる
+          # 実行中のパスを反映させる (Apple Silicon想定のパスを追加)
           export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
           bash scripts/verify.sh
