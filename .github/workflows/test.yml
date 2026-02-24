@@ -3,8 +3,8 @@ name: Dotfiles CI
 on:
   push:
     branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       msg:
@@ -29,31 +29,16 @@ jobs:
           sudo rm -rf /Library/Developer/CommandLineTools
           echo "Simulated a fresh macOS environment."
 
-          # curl -fsSL -o uninstall_brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh
-          # chmod +x uninstall_brew.sh
-          # ./uninstall_brew.sh --force || true
-          
-          # echo "Forcibly removing remaining Homebrew/Xcode files..."
-          # sudo chflags -R nouchg /opt/homebrew /usr/local/Homebrew 2>/dev/null || true
-          # # Explicitly remove all leftover directories and files
-          # sudo rm -rf /usr/local/Homebrew
-          # sudo rm -rf /usr/local/bin/brew
-          # sudo rm -rf /etc/paths.d/homebrew
-          # sudo xcode-select --reset || true          
-          
-          # echo "Simulated a fresh macOS environment."
+      - name: Setup Dotfiles (macOS)
+        run: |
+          yes "y" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)"
+        env:
+          SUDO_ASKPASS: /usr/bin/true
 
-      # - name: Setup Dotfiles (macOS)
-      #   run: |
-      #     chmod +x scripts/*.sh
-      #     ./scripts/install.sh
-      #   env:
-      #     SUDO_ASKPASS: /usr/bin/true
-
-      # - name: Verify Installation (macOS)
-      #   run: |
-      #     export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
-      #     bash scripts/verify.sh
+      - name: Verify Installation (macOS)
+        run: |
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+          bash scripts/verify.sh
 
   # test-linux:
   #   runs-on: ubuntu-latest
@@ -62,8 +47,8 @@ jobs:
 
   #     - name: Setup Dotfiles (Linux)
   #       run: |
-  #         chmod +x scripts/*.sh
-  #         ./scripts/install.sh
+  #         # Use yes command to handle interactive prompts
+  #         yes "y" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)"
 
   #     - name: Verify Installation (Linux)
   #       run: |
@@ -78,6 +63,7 @@ jobs:
   #     - name: Setup Dotfiles (Windows)
   #       shell: pwsh
   #       run: |
+  #         # Windows execution (install.ps1 is designed to be CI-aware or handled by input redirection if needed)
   #         .\scripts\install.ps1
   #       env:
   #         CI: true
