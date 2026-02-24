@@ -5,46 +5,45 @@ set -e
 # --- Root Check ---
 if [ "$EUID" -eq 0 ]; then
     echo "Error: Please do not run this script as root or with sudo."
-    echo "The script will ask for sudo password only when needed."
     exit 1
 fi
 
 # --- Sudo Keep-alive ---
-# Ask for sudo upfront and keep it alive
-echo "Some steps require sudo. Please enter your password:"
-sudo -v
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+if [ "$GITHUB_ACTIONS" != "true" ]; then
+    echo "Some steps require sudo. Please enter your password:"
+    sudo -v
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+fi
 
 # --- Configuration ---
 REPO_URL="https://github.com/holmeshoo/dotfiles.git"
 TARBALL_URL="https://github.com/holmeshoo/dotfiles/archive/refs/heads/main.tar.gz"
-DOTFILES_DIR="$HOME/dotfiles"
 
-echo "Starting dotfiles installation..."
+# Determine dotfiles directory (Use current dir if it looks like the repo)
+if [ -f "$(dirname "$0")/../common/.zshrc" ]; then
+    DOTFILES_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+else
+    DOTFILES_DIR="$HOME/dotfiles"
+fi
+
+echo "Setting up dotfiles from $DOTFILES_DIR"
 
 # 0. OS Specific: Ensure basic requirements
 OS="$(uname)"
 if [ "$OS" == "Darwin" ]; then
-    # Check if xcodebuild is available AND points to a full Xcode installation
-    # This avoids the "requires Xcode" error on systems with only Command Line Tools
     if command -v xcodebuild &> /dev/null && xcode-select -p | grep -q "Xcode.app"; then
         echo "Xcode detected. Attempting to accept license..."
         sudo xcodebuild -license accept || echo "Skipping Xcode license."
     fi
 elif [ "$OS" == "Linux" ]; then
     if ! command -v git &> /dev/null; then
-        echo "git not found. Installing git..."
         if command -v apt-get &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y git
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y git
-        elif command -v pacman &> /dev/null; then
-            sudo pacman -S --noconfirm git
         fi
     fi
 fi
 
-# 1. Get the repository (Clone or Download Tarball)
+# 1. Get the repository if not already present
 if [ ! -d "$DOTFILES_DIR" ]; then
     if command -v git &> /dev/null; then
         echo "Cloning repository to $DOTFILES_DIR..."
@@ -54,20 +53,12 @@ if [ ! -d "$DOTFILES_DIR" ]; then
         mkdir -p "$DOTFILES_DIR"
         curl -L "$TARBALL_URL" | tar -xz -C "$DOTFILES_DIR" --strip-components=1
     fi
-else
-    echo "Dotfiles directory already exists. Updating..."
-    if [ -d "$DOTFILES_DIR/.git" ]; then
-        cd "$DOTFILES_DIR" && git pull
-    else
-        echo "Non-git directory found. Re-downloading..."
-        curl -L "$TARBALL_URL" | tar -xz -C "$DOTFILES_DIR" --strip-components=1
-    fi
 fi
 
 cd "$DOTFILES_DIR"
 SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 
-# 2. Link dotfiles FIRST
+# 2. Link dotfiles
 echo "Creating symlinks..."
 FILES=(
     "common/.gitconfig"
@@ -78,58 +69,52 @@ FILES=(
     "common/.bashrc"
     "common/.zshrc"
 )
-if [ "$OS" == "Linux" ]; then
-    FILES+=("linux/.bashrc_local")
-fi
+[ "$OS" == "Linux" ] && FILES+=("linux/.bashrc_local")
 
 for file in "${FILES[@]}"; do
     target="$HOME/$(basename "$file")"
     source="$DOTFILES_DIR/$file"
     
+    # Backup if file exists and is not a symlink
     if [ -e "$target" ] && [ ! -L "$target" ]; then
-        echo "Warning: $target already exists and is not a symlink. Skipping."
-    else
-        echo "Linking $source to $target"
-        ln -sf "$source" "$target"
+        echo "Backing up existing $target to ${target}.bak"
+        mv "$target" "${target}.bak"
     fi
+    
+    echo "Linking $source to $target"
+    ln -sf "$source" "$target"
 done
 
-# 3. Base OS Setup (Homebrew, apt-update, etc.)
+# 3. Base OS Setup
 if [ "$OS" == "Darwin" ]; then
     bash "$SCRIPTS_DIR/setup-macos.sh"
-    # Ensure brew is available in the current session for subsequent scripts
-    if [ -f /opt/homebrew/bin/brew ]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    elif [ -f /usr/local/bin/brew ]; then
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
+    if [ -f /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
+    if [ -f /usr/local/bin/brew ]; then eval "$(/usr/local/bin/brew shellenv)"; fi
 elif [ "$OS" == "Linux" ]; then
     bash "$SCRIPTS_DIR/setup-linux.sh"
 fi
 
-# 3.5 Shell Setup (Oh My Zsh)
+# 3.5 Shell Setup
 bash "$SCRIPTS_DIR/setup-shell.sh"
 
 # 4. Optional Setup
-confirm() {
-    read -p "$1 [y/N]: " response
-    case "$response" in
-        [yY][eE][sS]|[yY]) return 0 ;;
-        *) return 1 ;;
-    esac
-}
-
-echo ""
-echo "--- Select Setup Levels ---"
-if confirm "Install EVERYTHING (Core, Language, and Heavy)?"; then
+if [ "$GITHUB_ACTIONS" == "true" ]; then
+    # CI環境では対話をスキップして Core と Language を自動実行
+    echo "CI detected. Automatically installing Core and Language..."
     bash "$SCRIPTS_DIR/setup-tools.sh"
     bash "$SCRIPTS_DIR/setup-runtimes.sh"
-    bash "$SCRIPTS_DIR/setup-apps.sh"
 else
-    confirm "1. [Core] CLI Tools (micro, tree, etc.)" && bash "$SCRIPTS_DIR/setup-tools.sh"
-    confirm "2. [Language] Runtimes (Node.js, Python, mise)" && bash "$SCRIPTS_DIR/setup-runtimes.sh"
-    confirm "3. [Heavy] Applications (Docker, VSCode)" && bash "$SCRIPTS_DIR/setup-apps.sh"
+    confirm() { read -p "$1 [y/N]: " response; [[ "$response" =~ ^[yY] ]] && return 0 || return 1; }
+    echo -e "\n--- Select Setup Levels ---"
+    if confirm "Install EVERYTHING (Core, Language, and Heavy)?"; then
+        bash "$SCRIPTS_DIR/setup-tools.sh"
+        bash "$SCRIPTS_DIR/setup-runtimes.sh"
+        bash "$SCRIPTS_DIR/setup-apps.sh"
+    else
+        confirm "1. [Core] CLI Tools (micro, git, etc.)?" && bash "$SCRIPTS_DIR/setup-tools.sh"
+        confirm "2. [Language] Runtimes (Node.js, Python, mise)?" && bash "$SCRIPTS_DIR/setup-runtimes.sh"
+        confirm "3. [Heavy] Applications (Docker, VSCode)?" && bash "$SCRIPTS_DIR/setup-apps.sh"
+    fi
 fi
 
-echo ""
 echo "Successfully installed dotfiles!"
