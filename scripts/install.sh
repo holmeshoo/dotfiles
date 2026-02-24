@@ -138,8 +138,14 @@ for file in "${FILES[@]}"; do
     target="$HOME/$(basename "$file")"
     source="$DOTFILES_DIR/$file"
     
-    # Remove existing files/links to ensure ln -s works
-    if [ -e "$target" ] || [ ! -L "$target" ]; then
+    # Backup if file exists and is not a symlink
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+        echo "Backing up existing $target to ${target}.bak"
+        mv "$target" "${target}.bak"
+    fi
+    
+    # If it's a symlink or already backed up, just remove it to create a fresh one
+    if [ -L "$target" ] || [ -e "$target" ]; then
         rm -rf "$target"
     fi
     

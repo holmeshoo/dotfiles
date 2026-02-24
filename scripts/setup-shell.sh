@@ -10,9 +10,11 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
 fi
 
 # 2. Change default shell to zsh if it's not already
-if [ "$SHELL" != "$(which zsh)" ]; then
+ZSH_PATH="$(which zsh)"
+if [ "$SHELL" != "$ZSH_PATH" ]; then
     echo "Changing default shell to zsh..."
-    chsh -s "$(which zsh)"
+    # Use sudo to avoid password prompt during chsh
+    sudo chsh -s "$ZSH_PATH" "$(whoami)"
 fi
 
 # 3. Install useful plugins (Optional but recommended)
