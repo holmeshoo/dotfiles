@@ -1,8 +1,8 @@
 name: Dotfiles CI
 
 on:
-  # push:
-  #   branches: [ main ]
+  push:
+    branches: [ main ]
   # pull_request:
   #   branches: [ main ]
   workflow_dispatch:
@@ -22,26 +22,21 @@ jobs:
       - name: Uninstall pre-installed tools (Simulate fresh OS)
         run: |
           echo "Uninstalling Homebrew..."
+          # Fix for /etc/paths.d/homebrew deletion failure
+          # See: https://github.com/orgs/Homebrew/discussions/3062#discussioncomment-2321335
+          sudo rm -f /etc/paths.d/homebrew
+          
           curl -fsSL -o uninstall_brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh
           chmod +x uninstall_brew.sh
           ./uninstall_brew.sh --force || true
           
           echo "Forcibly removing remaining Homebrew/Xcode files..."
-          # システムフラグ（変更禁止など）を解除してから削除
           sudo chflags -R nouchg /opt/homebrew /usr/local/Homebrew 2>/dev/null || true
           sudo rm -rf /opt/homebrew
           sudo rm -rf /usr/local/Homebrew
           sudo rm -rf /usr/local/bin/brew
-          sudo rm -rf /etc/paths.d/homebrew
           sudo rm -rf /Library/Developer/CommandLineTools
-          sudo xcode-select --reset || true
-          
-          # 削除できたか確認（デバッグ用）
-          if [ -d "/opt/homebrew" ]; then
-            echo "Warning: /opt/homebrew still exists. Listing contents:"
-            ls -la /opt/homebrew
-          fi
-          
+          sudo xcode-select --reset || true          
           echo "Simulated a fresh macOS environment."
 
       - name: Setup Dotfiles (macOS)
