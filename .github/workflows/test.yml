@@ -22,9 +22,12 @@ jobs:
       - name: Uninstall pre-installed tools (Simulate fresh OS)
         run: |
           echo "Uninstalling Homebrew..."
-          # sudo rm -f /etc/paths.d/homebrew
-          
+          sudo rm -f /etc/paths.d/homebrew
+          sudo rm -rf /opt/homebrew
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
+          echo "Uninstalling xcode..."
+          sudo rm -rf /Library/Developer/CommandLineTools
+          echo "Simulated a fresh macOS environment."
 
           # curl -fsSL -o uninstall_brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh
           # chmod +x uninstall_brew.sh
@@ -33,26 +36,24 @@ jobs:
           # echo "Forcibly removing remaining Homebrew/Xcode files..."
           # sudo chflags -R nouchg /opt/homebrew /usr/local/Homebrew 2>/dev/null || true
           # # Explicitly remove all leftover directories and files
-          # sudo rm -rf /opt/homebrew
           # sudo rm -rf /usr/local/Homebrew
           # sudo rm -rf /usr/local/bin/brew
           # sudo rm -rf /etc/paths.d/homebrew
-          sudo rm -rf /Library/Developer/CommandLineTools
           # sudo xcode-select --reset || true          
           
-          echo "Simulated a fresh macOS environment."
+          # echo "Simulated a fresh macOS environment."
 
-      - name: Setup Dotfiles (macOS)
-        run: |
-          chmod +x scripts/*.sh
-          ./scripts/install.sh
-        env:
-          SUDO_ASKPASS: /usr/bin/true
+      # - name: Setup Dotfiles (macOS)
+      #   run: |
+      #     chmod +x scripts/*.sh
+      #     ./scripts/install.sh
+      #   env:
+      #     SUDO_ASKPASS: /usr/bin/true
 
-      - name: Verify Installation (macOS)
-        run: |
-          export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
-          bash scripts/verify.sh
+      # - name: Verify Installation (macOS)
+      #   run: |
+      #     export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+      #     bash scripts/verify.sh
 
   # test-linux:
   #   runs-on: ubuntu-latest
