@@ -22,36 +22,81 @@ jobs:
       - name: Uninstall pre-installed tools (Simulate fresh OS)
         run: |
           echo "Uninstalling Homebrew..."
-          # Download and run the official uninstaller script non-interactively
           curl -fsSL -o uninstall_brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh
           chmod +x uninstall_brew.sh
-          ./uninstall_brew.sh --force
+          # Ignore errors from uninstaller and force delete remaining dirs
+          ./uninstall_brew.sh --force || true
           
-          # Remove remaining Homebrew directories
+          echo "Forcibly removing remaining Homebrew/Xcode files..."
           sudo rm -rf /opt/homebrew
           sudo rm -rf /usr/local/Homebrew
           sudo rm -rf /usr/local/bin/brew
-          
-          echo "Removing Xcode Command Line Tools..."
+          sudo rm -rf /etc/paths.d/homebrew
           sudo rm -rf /Library/Developer/CommandLineTools
-          # Reset xcode-select to ensure it doesn't point to the full Xcode app
           sudo xcode-select --reset || true
           
           echo "Simulated a fresh macOS environment."
 
-      - name: Setup Dotfiles (Fresh Install)
+      - name: Setup Dotfiles (macOS)
         run: |
           chmod +x scripts/*.sh
-          
-          # インストール実行
-          # "y" を渡して「全部入れる」を選択します
-          echo "y" | ./scripts/install.sh
+          ./scripts/install.sh
         env:
-          # CI環境での sudo パスワード要求を回避
           SUDO_ASKPASS: /usr/bin/true
 
-      - name: Verify Installation
+      - name: Verify Installation (macOS)
         run: |
-          # 実行中のパスを反映させる (Apple Silicon想定のパスを追加)
           export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
           bash scripts/verify.sh
+
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Dotfiles (Linux)
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/install.sh
+
+      - name: Verify Installation (Linux)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          bash scripts/verify.sh
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Dotfiles (Windows)
+        shell: pwsh
+        run: |
+          .\scripts\install.ps1
+        env:
+          CI: true
+
+      - name: Verify Installation (Windows)
+        shell: pwsh
+        run: |
+          # Check symlinks
+          $files = @(".gitconfig", ".vimrc", ".editorconfig", ".functions")
+          foreach ($f in $files) {
+            $path = Join-Path $HOME $f
+            if (Test-Path $path) {
+              Write-Host "✓ Found: $f"
+            } else {
+              Write-Error "✗ Missing: $f"
+              exit 1
+            }
+          }
+          
+          # Check commands
+          $cmds = @("git", "micro")
+          foreach ($c in $cmds) {
+            if (Get-Command $c -ErrorAction SilentlyContinue) {
+              Write-Host "✓ Command available: $c"
+            } else {
+              Write-Warning "✗ Command missing: $c"
+            }
+          }
