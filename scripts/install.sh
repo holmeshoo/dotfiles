@@ -104,29 +104,7 @@ fi
 cd "$DOTFILES_DIR"
 SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 
-# 2. Link dotfiles
-echo "Creating symlinks..."
-FILES=(
-    "common/.gitconfig"
-    "common/.vimrc"
-    "common/.editorconfig"
-    "common/.aliases"
-    "common/.functions"
-    "common/.bashrc"
-    "common/.zshrc"
-)
-[ "$OS" == "Linux" ] && FILES+=("linux/.bashrc_local")
-
-for file in "${FILES[@]}"; do
-    target="$HOME/$(basename "$file")"
-    source="$DOTFILES_DIR/$file"
-    if [ -e "$target" ] && [ ! -L "$target" ]; then
-        mv "$target" "${target}.bak"
-    fi
-    ln -sf "$source" "$target"
-done
-
-# 3. Execution
+# 3. Execution (Install Tools & Apps)
 if [ "$OS" == "Darwin" ]; then
     bash "$SCRIPTS_DIR/setup-macos.sh"
     if [ -f /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
@@ -141,5 +119,32 @@ bash "$SCRIPTS_DIR/setup-shell.sh"
 [ "$DO_CORE" = true ] && bash "$SCRIPTS_DIR/setup-tools.sh"
 [ "$DO_RUNTIME" = true ] && bash "$SCRIPTS_DIR/setup-runtimes.sh"
 [ "$DO_APPS" = true ] && bash "$SCRIPTS_DIR/setup-apps.sh"
+
+# 4. Link dotfiles (Final Step)
+# We do this at the end to ensure tools like Oh My Zsh don't overwrite our files
+echo "Creating symlinks (Finalizing)..."
+FILES=(
+    "common/.gitconfig"
+    "common/.vimrc"
+    "common/.editorconfig"
+    "common/.aliases"
+    "common/.functions"
+    "common/.bashrc"
+    "common/.zshrc"
+)
+[ "$OS" == "Linux" ] && FILES+=("linux/.bashrc_local")
+
+for file in "${FILES[@]}"; do
+    target="$HOME/$(basename "$file")"
+    source="$DOTFILES_DIR/$file"
+    
+    # Remove existing files/links to ensure ln -s works
+    if [ -e "$target" ] || [ ! -L "$target" ]; then
+        rm -rf "$target"
+    fi
+    
+    echo "Linking $source to $target"
+    ln -s "$source" "$target"
+done
 
 echo "Successfully installed dotfiles!"
