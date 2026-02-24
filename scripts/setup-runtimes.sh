@@ -10,10 +10,6 @@ if [ "$1" == "--clean" ]; then
     sudo rm -rf "$HOME/.local/bin/mise" "$HOME/.local/share/mise" "$HOME/.cache/mise" "$HOME/.config/mise" 2>/dev/null || true
 fi
 
-# Fix potential permission issues across local directories
-echo "Ensuring correct permissions for local directories..."
-sudo chown -R $(whoami) "$HOME/.local" "$HOME/.cache" "$HOME/.config" 2>/dev/null || true
-
 # 1. Install mise (Universal tool manager)
 if ! command -v mise &> /dev/null; then
     echo "Installing mise..."

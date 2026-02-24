@@ -1,0 +1,32 @@
+name: Dotfiles CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Dotfiles (Dry Run / Non-interactive)
+        run: |
+          # 権限の付与
+          chmod +x scripts/*.sh
+          
+          # インストール実行
+          # 注意: GUIアプリやDocker(Colima)はCI環境では動作が不安定または制限があるため、
+          # ここでは Core と Language のみをテストします
+          echo "y" | ./scripts/install.sh
+        env:
+          # CI環境での sudo パスワード要求を回避する設定
+          SUDO_ASKPASS: /usr/bin/true
+
+      - name: Verify Installation
+        run: |
+          # 実行中のパスを反映させる
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+          bash scripts/verify.sh

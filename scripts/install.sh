@@ -2,6 +2,13 @@
 
 set -e
 
+# --- Root Check ---
+if [ "$EUID" -eq 0 ]; then
+    echo "Error: Please do not run this script as root or with sudo."
+    echo "The script will ask for sudo password only when needed."
+    exit 1
+fi
+
 # --- Sudo Keep-alive ---
 # Ask for sudo upfront and keep it alive
 echo "Some steps require sudo. Please enter your password:"
