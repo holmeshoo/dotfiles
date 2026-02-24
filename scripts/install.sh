@@ -153,4 +153,14 @@ for file in "${FILES[@]}"; do
     ln -s "$source" "$target"
 done
 
+# 5. Finalize: Change Default Shell
+# We do this at the very end as it might prompt for a password
+if [ "$OS" == "Darwin" ] || [ "$OS" == "Linux" ]; then
+    ZSH_PATH="$(which zsh)"
+    if [ "$SHELL" != "$ZSH_PATH" ]; then
+        echo "Changing your default shell to zsh..."
+        sudo chsh -s "$ZSH_PATH" "$(whoami)"
+    fi
+fi
+
 echo "Successfully installed dotfiles!"

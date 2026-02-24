@@ -9,14 +9,6 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
-# 2. Change default shell to zsh if it's not already
-ZSH_PATH="$(which zsh)"
-if [ "$SHELL" != "$ZSH_PATH" ]; then
-    echo "Changing default shell to zsh..."
-    # Use sudo to avoid password prompt during chsh
-    sudo chsh -s "$ZSH_PATH" "$(whoami)"
-fi
-
 # 3. Install useful plugins (Optional but recommended)
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
