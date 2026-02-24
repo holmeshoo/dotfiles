@@ -30,6 +30,10 @@ mise use -g node@lts
 # 3. Install Python and uv
 echo "Installing uv (Python package manager)..."
 mise use -g uv@latest
+
+# Refresh mise environment to make 'uv' command available
+eval "$(mise activate bash)"
+
 echo "Setting up Python via uv..."
 uv python install
 
