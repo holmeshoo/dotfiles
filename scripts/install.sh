@@ -121,7 +121,6 @@ bash "$SCRIPTS_DIR/setup-shell.sh"
 [ "$DO_APPS" = true ] && bash "$SCRIPTS_DIR/setup-apps.sh"
 
 # 4. Link dotfiles (Final Step)
-# We do this at the end to ensure tools like Oh My Zsh don't overwrite our files
 echo "Creating symlinks (Finalizing)..."
 FILES=(
     "common/.gitconfig"
@@ -138,20 +137,19 @@ for file in "${FILES[@]}"; do
     target="$HOME/$(basename "$file")"
     source="$DOTFILES_DIR/$file"
     
-    # Backup if file exists and is not a symlink
     if [ -e "$target" ] && [ ! -L "$target" ]; then
-        echo "Backing up existing $target to ${target}.bak"
         mv "$target" "${target}.bak"
     fi
-    
-    # If it's a symlink or already backed up, just remove it to create a fresh one
     if [ -L "$target" ] || [ -e "$target" ]; then
         rm -rf "$target"
     fi
-    
-    echo "Linking $source to $target"
     ln -s "$source" "$target"
 done
+
+# Special link for mise config
+MISE_CONFIG_DIR="$HOME/.config/mise"
+mkdir -p "$MISE_CONFIG_DIR"
+ln -sf "$DOTFILES_DIR/common/.mise.toml" "$MISE_CONFIG_DIR/config.toml"
 
 # 5. Finalize: Change Default Shell
 # We do this at the very end as it might prompt for a password

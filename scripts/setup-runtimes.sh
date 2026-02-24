@@ -22,11 +22,8 @@ fi
 eval "$(mise activate bash)"
 
 # 2. Install all tools defined in .mise.toml
-MISE_CONFIG="$(dirname "$0")/../common/.mise.toml"
-if [ -f "$MISE_CONFIG" ]; then
-    echo "Installing runtimes from $MISE_CONFIG..."
-    # mise install は設定ファイルに書かれたものを一括で入れる
-    mise install --yes --config "$MISE_CONFIG"
-fi
+# .mise.toml は install.sh によって ~/.config/mise/config.toml にリンク済み
+echo "Installing runtimes via mise..."
+mise install --yes
 
 echo "Runtimes setup complete!"

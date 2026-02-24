@@ -17,7 +17,8 @@ $commonFiles = @(
 Write-Host "`nCreating symlinks..." -ForegroundColor Yellow
 foreach ($file in $commonFiles) {
     $source = Join-Path $dotfilesDir $file
-    $target = Join-Path $homeDir (".$(Split-Path -Leaf $file)")
+    # filenames in common already start with '.'
+    $target = Join-Path $homeDir (Split-Path -Leaf $file)
     
     if (Test-Path $target) {
         Write-Warning "$target already exists. Skipping."
@@ -26,6 +27,17 @@ foreach ($file in $commonFiles) {
         New-Item -ItemType SymbolicLink -Path $target -Value $source -Force
     }
 }
+
+# 1.5 Special Symlink for mise (Windows)
+$miseConfigDir = Join-Path $env:APPDATA "mise"
+$miseConfigSource = Join-Path $dotfilesDir "common\.mise.toml"
+$miseConfigTarget = Join-Path $miseConfigDir "config.toml"
+
+if (!(Test-Path $miseConfigDir)) {
+    New-Item -ItemType Directory -Path $miseConfigDir -Force
+}
+Write-Host "Linking mise config..." -ForegroundColor Yellow
+New-Item -ItemType SymbolicLink -Path $miseConfigTarget -Value $miseConfigSource -Force
 
 # 2. Setup PowerShell Profile
 $profilePath = $PROFILE
