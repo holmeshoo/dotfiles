@@ -19,15 +19,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Uninstall pre-installed tools (Simulate fresh OS)
-        run: |
-          echo "Uninstalling Homebrew..."
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
-          sudo rm -f /etc/paths.d/homebrew
-          sudo rm -rf /opt/homebrew
-          echo "Uninstalling xcode..."
-          sudo rm -rf /Library/Developer/CommandLineTools
-          echo "Simulated a fresh macOS environment."
+      # - name: Uninstall pre-installed tools (Simulate fresh OS)
+      #   run: |
+      #     echo "Uninstalling Homebrew..."
+      #     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
+      #     sudo rm -f /etc/paths.d/homebrew
+      #     sudo rm -rf /opt/homebrew
+      #     echo "Uninstalling xcode..."
+      #     sudo rm -rf /Library/Developer/CommandLineTools
+      #     echo "Simulated a fresh macOS environment."
 
       - name: Setup Dotfiles (macOS)
         run: |
