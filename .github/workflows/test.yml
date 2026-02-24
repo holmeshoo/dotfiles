@@ -1,10 +1,17 @@
 name: Dotfiles CI
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      msg:
+        type: string
+        required: false
+        description: "any message"
+
 
 jobs:
   test-macos:
