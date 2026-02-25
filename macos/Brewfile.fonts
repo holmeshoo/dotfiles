@@ -1,7 +1,6 @@
 # Fonts
-# As of 2024, most fonts are in homebrew/cask, but some might still need the tap
-tap "homebrew/homebrew-cask-fonts"
+tap "homebrew/cask-fonts"
 
 cask "font-hack-nerd-font"
 cask "font-noto-sans-jp"
-cask "font-source-han-sans-jp"
+cask "font-source-han-sans"

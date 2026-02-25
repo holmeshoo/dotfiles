@@ -62,6 +62,10 @@ check_link() {
 check_status() {
     local name="$1"
     local check_expr="$2"
+    # Remove leading/trailing quotes if present in the check_expr
+    check_expr="${check_expr%\"}"
+    check_expr="${check_expr#\"}"
+    
     if eval "$check_expr" &>/dev/null; then
         echo -e "${GREEN}✓${NC} $name available"
     else
@@ -159,7 +163,12 @@ if [ "$TEST_APPS" = true ]; then
         if [ -f "$LIST" ]; then
             while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
                 [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-                check_status "$(echo $name | xargs)" "$(echo $check_expr | xargs)"
+                # Trim whitespace
+                name="${name#"${name%%[![:space:]]*}"}"
+                name="${name%"${name##*[![:space:]]}"}"
+                check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
+                check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
+                check_status "$name" "$check_expr"
             done < "$LIST"
         fi
     fi
@@ -172,12 +181,23 @@ if [ "$TEST_FONTS" = true ]; then
         BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
         if [ -f "$BREWFILE" ]; then
             grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
-                # Fonts are hard to check via CLI, so we check if the cask is installed
                 check_status "$pkg" "brew list --cask | grep -q $pkg"
             done
         fi
+    elif [ "$OS" == "Linux" ]; then
+        LIST="$(dirname "$0")/../linux/external-fonts.txt"
+        if [ -f "$LIST" ]; then
+            while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
+                [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+                # Trim whitespace
+                name="${name#"${name%%[![:space:]]*}"}"
+                name="${name%"${name##*[![:space:]]}"}"
+                check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
+                check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
+                check_status "$name" "$check_expr"
+            done < "$LIST"
+        fi
     fi
-    # Linux fonts are checked via external-fonts.txt in the Core Tools step already
 fi
 
 echo -e "\n--- Verification Successful ---"
