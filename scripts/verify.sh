@@ -165,4 +165,19 @@ if [ "$TEST_APPS" = true ]; then
     fi
 fi
 
+# --- 5. Fonts ---
+if [ "$TEST_FONTS" = true ]; then
+    echo -e "\n[5. Fonts]"
+    if [ "$OS" == "Darwin" ]; then
+        BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
+        if [ -f "$BREWFILE" ]; then
+            grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
+                # Fonts are hard to check via CLI, so we check if the cask is installed
+                check_status "$pkg" "brew list --cask | grep -q $pkg"
+            done
+        fi
+    fi
+    # Linux fonts are checked via external-fonts.txt in the Core Tools step already
+fi
+
 echo -e "\n--- Verification Successful ---"
