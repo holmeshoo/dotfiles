@@ -178,11 +178,25 @@ fi
 if [ "$TEST_FONTS" = true ]; then
     echo -e "\n[5. Fonts]"
     if [ "$OS" == "Darwin" ]; then
+        # 1. Check Brew Casks
         BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
         if [ -f "$BREWFILE" ]; then
             grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
                 check_status "$pkg" "brew list --cask | grep -q $pkg"
             done
+        fi
+        # 2. Check External Fonts
+        LIST="$(dirname "$0")/../macos/external-fonts.txt"
+        if [ -f "$LIST" ]; then
+            while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
+                [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+                # Trim whitespace
+                name="${name#"${name%%[![:space:]]*}"}"
+                name="${name%"${name##*[![:space:]]}"}"
+                check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
+                check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
+                check_status "$name" "$check_expr"
+            done < "$LIST"
         fi
     elif [ "$OS" == "Linux" ]; then
         LIST="$(dirname "$0")/../linux/external-fonts.txt"

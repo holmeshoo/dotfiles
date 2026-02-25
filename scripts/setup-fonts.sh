@@ -6,17 +6,11 @@ echo "Installing Fonts..."
 
 OS="$(uname)"
 
-if [ "$OS" == "Darwin" ]; then
-    # macOS: Brewfile.fonts (新設) を使用
-    BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
-    if [ -f "$BREWFILE" ]; then
-        echo "Installing fonts via Homebrew..."
-        brew bundle --file="$BREWFILE" --verbose
-    fi
-elif [ "$OS" == "Linux" ]; then
-    # Linux: linux/external-fonts.txt (新設) を使用
-    LIST="$(dirname "$0")/../linux/external-fonts.txt"
-    if [ -f "$LIST" ]; then
+# Function to install from external-fonts.txt
+install_from_list() {
+    local list_file="$1"
+    if [ -f "$list_file" ]; then
+        echo "Processing external fonts from $(basename "$list_file")..."
         while IFS=':' read -r name check_cmd install_cmd || [ -n "$name" ]; do
             [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
             
@@ -34,8 +28,24 @@ elif [ "$OS" == "Linux" ]; then
             else
                 echo "$name is already installed."
             fi
-        done < "$LIST"
+        done < "$list_file"
     fi
+}
+
+# 1. macOS specific: Brewfile.fonts
+if [ "$OS" == "Darwin" ]; then
+    BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
+    if [ -f "$BREWFILE" ]; then
+        echo "Installing fonts via Homebrew..."
+        brew bundle --file="$BREWFILE" --verbose
+    fi
+fi
+
+# 2. OS-specific external lists (Common Logic)
+if [ "$OS" == "Darwin" ]; then
+    install_from_list "$(dirname "$0")/../macos/external-fonts.txt"
+elif [ "$OS" == "Linux" ]; then
+    install_from_list "$(dirname "$0")/../linux/external-fonts.txt"
 fi
 
 echo "Fonts installation complete."

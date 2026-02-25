@@ -3,4 +3,3 @@ tap "homebrew/cask-fonts"
 
 cask "font-hack-nerd-font"
 cask "font-noto-sans-jp"
-cask "font-source-han-sans"
