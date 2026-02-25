@@ -65,7 +65,7 @@ sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # --- Configuration ---
-REPO_URL="https://github.com/holmeshoo/dotfiles.git"
+-+="https://github.com/holmeshoo/dotfiles.git"
 
 # Determine dotfiles directory
 if [ -f "$(dirname "$0")/../common/.zshrc" ]; then
