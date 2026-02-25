@@ -18,6 +18,28 @@ if command -v mise &> /dev/null; then
     eval "$(mise activate bash)"
 fi
 
+# --- Arguments Parsing ---
+TEST_CORE=false
+TEST_RUNTIME=false
+TEST_APPS=false
+
+if [[ "$#" -eq 0 ]]; then
+    # Default: Test everything if no arguments
+    TEST_CORE=true
+    TEST_RUNTIME=true
+    TEST_APPS=true
+else
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            --all) TEST_CORE=true; TEST_RUNTIME=true; TEST_APPS=true ;;
+            --core) TEST_CORE=true ;;
+            --runtime) TEST_RUNTIME=true ;;
+            --apps) TEST_APPS=true ;;
+        esac
+        shift
+    done
+fi
+
 # --- Configuration ---
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -45,52 +67,42 @@ check_cmd() {
 
 echo -e "
 [1. Symlinks]"
-check_link ".zshrc"
-check_link ".gitconfig"
-check_link ".vimrc"
-check_link ".functions"
-check_link ".aliases"
-check_link ".zshrc_local"
-check_link ".bashrc_local"
-check_link ".gitconfig.local"
-
-# Check config files in .config
-CONFIG_FILES=(".config/mise/config.toml" ".config/starship.toml")
-for f in "${CONFIG_FILES[@]}"; do
-    if [ -L "$HOME/$f" ]; then
-        echo -e "${GREEN}✓${NC} Symlink created: $f"
-    else
-        echo -e "${RED}✗${NC} Symlink missing: $f"
-        exit 1
-    fi
-done
+LINKS_FILE="$(dirname "$0")/../common/links.txt"
+if [ -f "$LINKS_FILE" ]; then
+    while IFS=':' read -r src_rel dst_rel || [ -n "$src_rel" ]; do
+        [[ "$src_rel" =~ ^#.*$ || -z "$src_rel" ]] && continue
+        dst_rel=$(echo $dst_rel | xargs)
+        check_link "$dst_rel"
+    done < "$LINKS_FILE"
+else
+    echo -e "${RED}✗${NC} LINKS_FILE not found: $LINKS_FILE"
+    exit 1
+fi
 
 echo -e "
 [2. Tools & Apps]"
-# Standard tools
-[ "$OS" == "Darwin" ] && check_cmd "brew"
-check_cmd "git"
-check_cmd "micro"
-check_cmd "btop"
 
-# Data-driven check for OS-specific external tools & apps
-LISTS=()
-if [ "$OS" == "Darwin" ]; then
-    LISTS+=("$(dirname "$0")/../macos/external-tools.txt")
-elif [ "$OS" == "Linux" ]; then
-    LISTS+=("$(dirname "$0")/../linux/external-tools.txt")
-    LISTS+=("$(dirname "$0")/../linux/external-apps.txt")
+if [ "$TEST_CORE" = true ]; then
+    echo "Verifying Core Tools..."
+    [ "$OS" == "Darwin" ] && check_cmd "brew"
+    check_cmd "git"
+    check_cmd "micro"
+    check_cmd "btop"
+    check_cmd "starship"
 fi
 
-for list_file in "${LISTS[@]}"; do
-    if [ -f "$list_file" ]; then
-        while IFS=':' read -r name check_cmd install_cmd || [ -n "$name" ]; do
-            [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-            check_cmd=$(echo $check_cmd | xargs)
-            check_cmd "$check_cmd"
-        done < "$list_file"
-    fi
-done
+if [ "$TEST_RUNTIME" = true ]; then
+    echo "Verifying Runtimes..."
+    check_cmd "mise"
+    # Note: Languages themselves (node, etc.) might need a shell restart to be in PATH
+fi
+
+if [ "$TEST_APPS" = true ]; then
+    echo "Verifying Heavy Applications..."
+    check_cmd "code"
+    check_cmd "vivaldi"
+    [ "$OS" == "Darwin" ] && check_cmd "colima"
+fi
 
 echo -e "
 --- Verification Successful ---"

@@ -1,0 +1,5 @@
+# List of local override files to be created if missing
+# format: FILENAME
+.zshrc_local
+.bashrc_local
+.gitconfig.local

@@ -1,0 +1,13 @@
+# format: SOURCE_FILENAME : TARGET_PATH_RELATIVE_TO_HOME
+.gitconfig : .gitconfig
+.gitconfig.local : .gitconfig.local
+.vimrc : .vimrc
+.editorconfig : .editorconfig
+.aliases : .aliases
+.functions : .functions
+.bashrc : .bashrc
+.zshrc : .zshrc
+.bashrc_local : .bashrc_local
+.zshrc_local : .zshrc_local
+.starship.toml : .config/starship.toml
+.mise.toml : .config/mise/config.toml

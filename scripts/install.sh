@@ -123,65 +123,53 @@ bash "$SCRIPTS_DIR/setup-shell.sh"
 echo "Creating symlinks (Finalizing)..."
 
 # Ensure local override files exist so they can be linked
-# These are ignored by git, so they won't exist on a fresh clone
-LOCAL_FILES=(
-    "common/.zshrc_local"
-    "common/.bashrc_local"
-    "common/.gitconfig.local"
-)
+LOCAL_FILES_LIST="$DOTFILES_DIR/common/local-files.txt"
+if [ -f "$LOCAL_FILES_LIST" ]; then
+    while read -r f || [ -n "$f" ]; do
+        [[ "$f" =~ ^#.*$ || -z "$f" ]] && continue
+        f=$(echo "$f" | xargs)
+        if [ ! -f "$DOTFILES_DIR/common/$f" ]; then
+            echo "Creating template for $f"
+            echo "# Local overrides (Not committed to git)" > "$DOTFILES_DIR/common/$f"
+        fi
+    done < "$LOCAL_FILES_LIST"
+fi
 
-for f in "${LOCAL_FILES[@]}"; do
-    if [ ! -f "$DOTFILES_DIR/$f" ]; then
-        echo "Creating template for $f"
-        echo "# Local overrides (Not committed to git)" > "$DOTFILES_DIR/$f"
-    fi
-done
-
-# Define mapping: "SourceFile:TargetLocation"
-LINKS=(
-    "common/.gitconfig:.gitconfig"
-    "common/.gitconfig.local:.gitconfig.local"
-    "common/.vimrc:.vimrc"
-    "common/.editorconfig:.editorconfig"
-    "common/.aliases:.aliases"
-    "common/.functions:.functions"
-    "common/.bashrc:.bashrc"
-    "common/.zshrc:.zshrc"
-    "common/.bashrc_local:.bashrc_local"
-    "common/.zshrc_local:.zshrc_local"
-    "common/.starship.toml:.config/starship.toml"
-    "common/.mise.toml:.config/mise/config.toml"
-)
-
-for item in "${LINKS[@]}"; do
-    src_rel="${item%%:*}"
-    dst_rel="${item##*:}"
-    
-    source="$DOTFILES_DIR/$src_rel"
-    target="$HOME/$dst_rel"
-    
-    if [ ! -f "$source" ]; then
-        echo "Warning: Source file $source not found. Skipping."
-        continue
-    fi
-    
-    # Ensure target directory exists
-    mkdir -p "$(dirname "$target")"
-    
-    # Backup existing file if it's not a link
-    if [ -e "$target" ] && [ ! -L "$target" ]; then
-        echo "Backing up $target"
-        mv "$target" "/tmp/$(basename "$target").bak"
-    fi
-    
-    # Remove existing link or file to ensure fresh link
-    if [ -L "$target" ] || [ -e "$target" ]; then
-        rm -rf "$target"
-    fi
-    
-    echo "Linking $dst_rel"
-    ln -s "$source" "$target"
-done
+# Read mapping from external file: "SourceFileName : TargetLocation"
+LINKS_FILE="$DOTFILES_DIR/common/links.txt"
+if [ -f "$LINKS_FILE" ]; then
+    while IFS=':' read -r src_name dst_rel || [ -n "$src_name" ]; do
+        [[ "$src_name" =~ ^#.*$ || -z "$src_name" ]] && continue
+        
+        src_name=$(echo $src_name | xargs)
+        dst_rel=$(echo $dst_rel | xargs)
+        
+        source="$DOTFILES_DIR/common/$src_name"
+        target="$HOME/$dst_rel"
+        
+        if [ ! -f "$source" ]; then
+            echo "Warning: Source file $source not found. Skipping."
+            continue
+        fi
+        
+        # Ensure target directory exists
+        mkdir -p "$(dirname "$target")"
+        
+        # Backup existing file if it's not a link
+        if [ -e "$target" ] && [ ! -L "$target" ]; then
+            echo "Backing up $target"
+            mv "$target" "/tmp/$(basename "$target").bak"
+        fi
+        
+        # Remove existing link or file to ensure fresh link
+        if [ -L "$target" ] || [ -e "$target" ]; then
+            rm -rf "$target"
+        fi
+        
+        echo "Linking $dst_rel"
+        ln -s "$source" "$target"
+    done < "$LINKS_FILE"
+fi
 
 # 5. Finalize: Change Default Shell
 # We do this at the very end as it might prompt for a password

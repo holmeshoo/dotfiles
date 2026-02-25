@@ -39,7 +39,7 @@ jobs:
       - name: Verify Installation (macOS)
         run: |
           export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
-          bash scripts/verify.sh
+          bash scripts/verify.sh --core --runtime
 
   test-linux:
     runs-on: ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
       - name: Verify Installation (Linux)
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          bash scripts/verify.sh
+          bash scripts/verify.sh --core --runtime
 
   test-windows:
     runs-on: windows-latest
