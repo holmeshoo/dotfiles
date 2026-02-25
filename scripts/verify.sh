@@ -22,18 +22,21 @@ fi
 TEST_CORE=false
 TEST_RUNTIME=false
 TEST_APPS=false
+TEST_FONTS=false
 
 if [[ "$#" -eq 0 ]]; then
     TEST_CORE=true
     TEST_RUNTIME=true
     TEST_APPS=true
+    TEST_FONTS=true
 else
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --all) TEST_CORE=true; TEST_RUNTIME=true; TEST_APPS=true ;;
+            --all) TEST_CORE=true; TEST_RUNTIME=true; TEST_APPS=true; TEST_FONTS=true ;;
             --core) TEST_CORE=true ;;
             --runtime) TEST_RUNTIME=true ;;
             --apps) TEST_APPS=true ;;
+            --fonts) TEST_FONTS=true ;;
         esac
         shift
     done
@@ -55,12 +58,14 @@ check_link() {
     fi
 }
 
-check_cmd() {
-    local cmd="$1"
-    if command -v "$cmd" &> /dev/null; then
-        echo -e "${GREEN}✓${NC} Command available: $cmd"
+# New smarter check function
+check_status() {
+    local name="$1"
+    local check_expr="$2"
+    if eval "$check_expr" &>/dev/null; then
+        echo -e "${GREEN}✓${NC} $name available"
     else
-        echo -e "${RED}✗${NC} Command missing: $cmd"
+        echo -e "${RED}✗${NC} $name missing (Checked via: $check_expr)"
         exit 1
     fi
 }
@@ -79,18 +84,16 @@ fi
 if [ "$TEST_CORE" = true ]; then
     echo -e "\n[2. Core Tools]"
     if [ "$OS" == "Darwin" ]; then
-        check_cmd "brew"
-        # Parse Brewfile.core for 'brew "package"' pattern
+        check_status "Homebrew" "command -v brew"
         BREWFILE="$(dirname "$0")/../macos/Brewfile.core"
         if [ -f "$BREWFILE" ]; then
             grep '^brew "' "$BREWFILE" | sed 's/brew "\(.*\)"/\1/' | while read -r pkg; do
-                # Note: Some pkgs like 'llvm' don't have matching command names,
-                # but for most simple CLI tools this works.
                 case $pkg in
-                    llvm) check_cmd "clang" ;;
-                    translate-shell) check_cmd "trans" ;;
-                    cocoapods) check_cmd "pod" ;;
-                    *) check_cmd "$pkg" ;;
+                    llvm) check_status "llvm" "command -v clang" ;;
+                    translate-shell) check_status "trans" "command -v trans" ;;
+                    cocoapods) check_status "cocoapods" "command -v pod" ;;
+                    git-delta) check_status "delta" "command -v delta" ;;
+                    *) check_status "$pkg" "command -v $pkg" ;;
                 esac
             done
         fi
@@ -99,9 +102,9 @@ if [ "$TEST_CORE" = true ]; then
         if [ -f "$LIST" ]; then
             grep -v '^#' "$LIST" | while read -r pkg; do
                 case $pkg in
-                    build-essential) check_cmd "make" ;;
-                    translate-shell) check_cmd "trans" ;;
-                    *) check_cmd "$pkg" ;;
+                    build-essential) check_status "make" "command -v make" ;;
+                    translate-shell) check_status "trans" "command -v trans" ;;
+                    *) check_status "$pkg" "command -v $pkg" ;;
                 esac
             done
         fi
@@ -112,9 +115,9 @@ if [ "$TEST_CORE" = true ]; then
     [ "$OS" == "Darwin" ] && EXT_TOOLS="$(dirname "$0")/../macos/external-tools.txt"
     [ "$OS" == "Linux" ] && EXT_TOOLS="$(dirname "$0")/../linux/external-tools.txt"
     if [ -f "$EXT_TOOLS" ]; then
-        while IFS=':' read -r name check_cmd_name inst || [ -n "$name" ]; do
+        while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
             [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-            check_cmd "$(echo $check_cmd_name | xargs)"
+            check_status "$(echo $name | xargs)" "$(echo $check_expr | xargs)"
         done < "$EXT_TOOLS"
     fi
 fi
@@ -122,7 +125,7 @@ fi
 # --- 3. Runtimes ---
 if [ "$TEST_RUNTIME" = true ]; then
     echo -e "\n[3. Runtimes]"
-    check_cmd "mise"
+    check_status "mise" "command -v mise"
 fi
 
 # --- 4. Apps ---
@@ -131,26 +134,24 @@ if [ "$TEST_APPS" = true ]; then
     if [ "$OS" == "Darwin" ]; then
         BREWFILE="$(dirname "$0")/../macos/Brewfile.apps"
         if [ -f "$BREWFILE" ]; then
-            # Check Casks
             grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
                 case $pkg in
-                    visual-studio-code) check_cmd "code" ;;
-                    thebrowsercompany-dia) check_cmd "dia" ;;
-                    vivaldi) check_cmd "vivaldi" ;;
-                    android-studio) check_cmd "studio" ;;
+                    visual-studio-code) check_status "vscode" "command -v code" ;;
+                    thebrowsercompany-dia) check_status "dia" "command -v dia" ;;
+                    vivaldi) check_status "vivaldi" "command -v vivaldi" ;;
+                    android-studio) check_status "android-studio" "command -v studio" ;;
                 esac
             done
-            # Check Formulae in apps (like docker/colima)
             grep '^brew "' "$BREWFILE" | sed 's/brew "\(.*\)"/\1/' | while read -r pkg; do
-                check_cmd "$pkg"
+                check_status "$pkg" "command -v $pkg"
             done
         fi
     elif [ "$OS" == "Linux" ]; then
         LIST="$(dirname "$0")/../linux/external-apps.txt"
         if [ -f "$LIST" ]; then
-            while IFS=':' read -r name check_cmd_name inst || [ -n "$name" ]; do
+            while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
                 [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-                check_cmd "$(echo $check_cmd_name | xargs)"
+                check_status "$(echo $name | xargs)" "$(echo $check_expr | xargs)"
             done < "$LIST"
         fi
     fi
