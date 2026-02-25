@@ -77,5 +77,6 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 - CLI ツール: [macos/Brewfile.core](macos/Brewfile.core), [linux/apt-packages.txt](linux/apt-packages.txt), [windows/winget-packages.txt](windows/winget-packages.txt)
 - GUI アプリ: [macos/Brewfile.apps](macos/Brewfile.apps), [linux/external-apps.txt](linux/external-apps.txt), [windows/winget-apps.txt](windows/winget-apps.txt)
 - フォント: [macos/Brewfile.fonts](macos/Brewfile.fonts), [linux/external-fonts.txt](linux/external-fonts.txt), [windows/winget-fonts.txt](windows/winget-fonts.txt)
+- ランタイム・言語別ツール: [common/.mise.toml](common/.mise.toml), [common/npm-packages.txt](common/npm-packages.txt), [common/cargo-packages.txt](common/cargo-packages.txt)
 - VSCode: [common/vscode-extensions.txt](common/vscode-extensions.txt) および [common/vscode/settings.json](common/vscode/settings.json)
 - リンク設定: [common/links.txt](common/links.txt)

@@ -1,0 +1,3 @@
+# Global Cargo Packages
+# format: CRATE_NAME
+typst-cli

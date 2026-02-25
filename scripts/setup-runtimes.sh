@@ -26,4 +26,32 @@ eval "$(mise activate bash)"
 echo "Installing runtimes via mise..."
 mise install --yes
 
+# 3. Install Global NPM Packages
+if command -v npm &> /dev/null; then
+    NPM_LIST="$(dirname "$0")/../common/npm-packages.txt"
+    if [ -f "$NPM_LIST" ]; then
+        echo "Installing global NPM packages..."
+        while read -r pkg || [ -n "$pkg" ]; do
+            [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
+            pkg=$(echo "$pkg" | xargs)
+            echo "  -> $pkg"
+            npm install -g "$pkg"
+        done < "$NPM_LIST"
+    fi
+fi
+
+# 4. Install Global Cargo Packages
+if command -v cargo &> /dev/null; then
+    CARGO_LIST="$(dirname "$0")/../common/cargo-packages.txt"
+    if [ -f "$CARGO_LIST" ]; then
+        echo "Installing global Cargo packages..."
+        while read -r pkg || [ -n "$pkg" ]; do
+            [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
+            pkg=$(echo "$pkg" | xargs)
+            echo "  -> $pkg"
+            cargo install "$pkg"
+        done < "$CARGO_LIST"
+    fi
+fi
+
 echo "Runtimes setup complete!"

@@ -1,0 +1,3 @@
+# Global NPM Packages
+# format: PACKAGE_NAME
+@google/gemini-cli
