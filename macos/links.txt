@@ -1,0 +1,2 @@
+# format: SOURCE_PATH_RELATIVE_TO_COMMON : TARGET_PATH_RELATIVE_TO_HOME
+vscode/settings.json : Library/Application Support/Code/User/settings.json

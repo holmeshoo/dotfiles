@@ -19,24 +19,17 @@ fi
 if [ "$OS" == "Linux" ]; then
     LIST="$(dirname "$0")/../linux/external-apps.txt"
     if [ -f "$LIST" ]; then
+        # Use sed to pre-clean whitespace around ':' and line ends
         while IFS=':' read -r name check_cmd install_cmd || [ -n "$name" ]; do
             [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
             
-            # Trim whitespace
-            name="${name#"${name%%[![:space:]]*}"}"
-            name="${name%"${name##*[![:space:]]}"}"
-            check_cmd="${check_cmd#"${check_cmd%%[![:space:]]*}"}"
-            check_cmd="${check_cmd%"${check_cmd##*[![:space:]]}"}"
-            install_cmd="${install_cmd#"${install_cmd%%[![:space:]]*}"}"
-            install_cmd="${install_cmd%"${install_cmd##*[![:space:]]}"}"
-
             if ! command -v "$check_cmd" &>/dev/null; then
                 echo "Installing $name..."
                 eval "$install_cmd"
             else
                 echo "$name is already installed. Skipping..."
             fi
-        done < "$LIST"
+        done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$LIST")
     fi
 fi
 
@@ -45,7 +38,7 @@ if command -v code &>/dev/null; then
     EXT_LIST="$(dirname "$0")/../common/vscode-extensions.txt"
     if [ -f "$EXT_LIST" ]; then
         echo "Installing VSCode extensions..."
-        while read -r ext || [ -n "$f" ]; do
+        while read -r ext || [ -n "$ext" ]; do
             [[ "$ext" =~ ^#.*$ || -z "$ext" ]] && continue
             echo "  -> $ext"
             code --install-extension "$ext" --force

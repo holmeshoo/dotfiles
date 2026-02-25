@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # macOS System Configurations
 # Original idea from: https://github.com/mathiasbynens/dotfiles/blob/master/.macos

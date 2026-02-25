@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Master dump script to save current system state to dotfiles repository
 

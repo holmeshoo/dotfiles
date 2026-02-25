@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # --- Path Settings for Verification ---
 OS="$(uname)"
@@ -62,9 +62,6 @@ check_link() {
 check_status() {
     local name="$1"
     local check_expr="$2"
-    # Remove leading/trailing quotes if present in the check_expr
-    check_expr="${check_expr%\"}"
-    check_expr="${check_expr#\"}"
     
     if eval "$check_expr" &>/dev/null; then
         echo -e "${GREEN}✓${NC} $name available"
@@ -76,16 +73,21 @@ check_status() {
 
 # --- 1. Symlinks ---
 echo -e "\n[1. Symlinks]"
-LINKS_FILE="$(dirname "$0")/../common/links.txt"
-if [ -f "$LINKS_FILE" ]; then
-    while IFS=':' read -r src dst || [ -n "$src" ]; do
-        [[ "$src" =~ ^#.*$ || -z "$src" ]] && continue
-        # Trim whitespace
-        dst="${dst#"${dst%%[![:space:]]*}"}"
-        dst="${dst%"${dst##*[![:space:]]}"}"
-        check_link "$dst"
-    done < "$LINKS_FILE"
+LINKS_FILES=("$(dirname "$0")/../common/links.txt")
+if [ "$OS" == "Darwin" ]; then
+    LINKS_FILES+=("$(dirname "$0")/../macos/links.txt")
+elif [ "$OS" == "Linux" ]; then
+    LINKS_FILES+=("$(dirname "$0")/../linux/links.txt")
 fi
+
+for links_file in "${LINKS_FILES[@]}"; do
+    if [ -f "$links_file" ]; then
+        while IFS=':' read -r src dst || [ -n "$src" ]; do
+            [[ "$src" =~ ^#.*$ || -z "$src" ]] && continue
+            check_link "$dst"
+        done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$links_file")
+    fi
+done
 
 # --- 2. Core Tools ---
 if [ "$TEST_CORE" = true ]; then
@@ -124,13 +126,8 @@ if [ "$TEST_CORE" = true ]; then
     if [ -f "$EXT_TOOLS" ]; then
         while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
             [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-            # Trim whitespace
-            name="${name#"${name%%[![:space:]]*}"}"
-            name="${name%"${name##*[![:space:]]}"}"
-            check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
-            check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
             check_status "$name" "$check_expr"
-        done < "$EXT_TOOLS"
+        done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$EXT_TOOLS")
     fi
 fi
 
@@ -163,13 +160,8 @@ if [ "$TEST_APPS" = true ]; then
         if [ -f "$LIST" ]; then
             while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
                 [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-                # Trim whitespace
-                name="${name#"${name%%[![:space:]]*}"}"
-                name="${name%"${name##*[![:space:]]}"}"
-                check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
-                check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
                 check_status "$name" "$check_expr"
-            done < "$LIST"
+            done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$LIST")
         fi
     fi
 fi
@@ -178,7 +170,7 @@ fi
 if [ "$TEST_FONTS" = true ]; then
     echo -e "\n[5. Fonts]"
     if [ "$OS" == "Darwin" ]; then
-        # Check Brew Casks
+        # 1. Check Brew Casks
         BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
         if [ -f "$BREWFILE" ]; then
             grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
@@ -190,26 +182,16 @@ if [ "$TEST_FONTS" = true ]; then
         if [ -f "$LIST" ]; then
             while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
                 [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-                # Trim whitespace
-                name="${name#"${name%%[![:space:]]*}"}"
-                name="${name%"${name##*[![:space:]]}"}"
-                check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
-                check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
                 check_status "$name" "$check_expr"
-            done < "$LIST"
+            done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$LIST")
         fi
     elif [ "$OS" == "Linux" ]; then
         LIST="$(dirname "$0")/../linux/external-fonts.txt"
         if [ -f "$LIST" ]; then
             while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
                 [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-                # Trim whitespace
-                name="${name#"${name%%[![:space:]]*}"}"
-                name="${name%"${name##*[![:space:]]}"}"
-                check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
-                check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
                 check_status "$name" "$check_expr"
-            done < "$LIST"
+            done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$LIST")
         fi
     fi
 fi

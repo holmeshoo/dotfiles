@@ -1,17 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "Setting up Zsh and Oh My Zsh..."
 
-# 1. Install Oh My Zsh if not present
+# Install Oh My Zsh if not present
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Installing Oh My Zsh..."
-    # Keep the installer from changing the shell immediately or running zsh
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
 else
     echo "Oh My Zsh already installed. Skipping..."
 fi
 
-# 3. Install useful plugins (Optional but recommended)
+# Install useful plugins
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
     git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"

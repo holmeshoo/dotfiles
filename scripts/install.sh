@@ -1,14 +1,12 @@
-#!/bin/bash
-
 set -e
 
-# --- Root Check ---
+# Root Check 
 if [ "$EUID" -eq 0 ]; then
     echo "Error: Please do not run this script as root or with sudo."
     exit 1
 fi
 
-# --- Usage ---
+# Selection function
 usage() {
     echo "Usage: $0 [options]"
     echo "Options:"
@@ -21,13 +19,13 @@ usage() {
     exit 0
 }
 
-# --- Initial Selection ---
+# Mode flags
 DO_CORE=false
 DO_RUNTIME=false
 DO_APPS=false
 DO_FONTS=false
 
-# Parse arguments if provided
+# selection logic
 if [[ "$#" -gt 0 ]]; then
     while [[ "$#" -gt 0 ]]; do
         case $1 in
@@ -42,7 +40,6 @@ if [[ "$#" -gt 0 ]]; then
         shift
     done
 else
-    # Graphical Selection (Whiptail) only if no arguments
     if command -v whiptail &>/dev/null; then
         CHOICES=$(whiptail --title "Dotfiles Setup" --checklist \
         "Space to select/deselect, Enter to confirm:" 15 60 4 \
@@ -65,12 +62,11 @@ else
     fi
 fi
 
-# --- Sudo Keep-alive ---
+# Sudo Keep-alive
 echo "Some steps require sudo. Please enter your password:"
 sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# --- Configuration ---
 REPO_URL="https://github.com/holmeshoo/dotfiles.git"
 
 # Determine dotfiles directory
@@ -82,14 +78,13 @@ fi
 
 echo "Setting up dotfiles from $DOTFILES_DIR"
 
-# 0. OS Specific requirements
+# OS Specific requirements and git installation
 OS="$(uname)"
 if [ "$OS" == "Darwin" ]; then
     if command -v xcodebuild &> /dev/null && xcode-select -p | grep -q "Xcode.app"; then
         sudo xcodebuild -license accept || echo "Skipping Xcode license."
     fi
 elif [ "$OS" == "Linux" ]; then
-    # Ensure apt is up to date before any sub-scripts run
     if command -v apt-get &> /dev/null; then
         echo "Updating package list..."
         sudo apt-get update
@@ -108,28 +103,10 @@ fi
 cd "$DOTFILES_DIR"
 SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 
-# 3. Execution (Install Tools & Apps)
-if [ "$OS" == "Darwin" ]; then
-    bash "$DOTFILES_DIR/macos/setup.sh"
-    # Ensure brew is available in this process for subsequent scripts
-    [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-    [ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
-elif [ "$OS" == "Linux" ]; then
-    bash "$DOTFILES_DIR/linux/setup.sh"
-fi
+# Link dotfiles (Early Step)
+echo "Creating symlinks..."
 
-bash "$SCRIPTS_DIR/setup-shell.sh"
-
-# Run selected setup steps
-[ "$DO_CORE" = true ] && bash "$SCRIPTS_DIR/setup-tools.sh"
-[ "$DO_RUNTIME" = true ] && bash "$SCRIPTS_DIR/setup-runtimes.sh"
-[ "$DO_APPS" = true ] && bash "$SCRIPTS_DIR/setup-apps.sh"
-[ "$DO_FONTS" = true ] && bash "$SCRIPTS_DIR/setup-fonts.sh"
-
-# 4. Link dotfiles (Final Step)
-echo "Creating symlinks (Finalizing)..."
-
-# Ensure local override files exist so they can be linked
+# Ensure local override files exist
 LOCAL_FILES_LIST="$DOTFILES_DIR/common/local-files.txt"
 if [ -f "$LOCAL_FILES_LIST" ]; then
     while read -r f || [ -n "$f" ]; do
@@ -142,48 +119,65 @@ if [ -f "$LOCAL_FILES_LIST" ]; then
     done < "$LOCAL_FILES_LIST"
 fi
 
-# Read mapping from external file: "SourceFileName : TargetLocation"
-LINKS_FILE="$DOTFILES_DIR/common/links.txt"
-if [ -f "$LINKS_FILE" ]; then
-    while IFS=':' read -r src_name dst_rel || [ -n "$src_name" ]; do
-        [[ "$src_name" =~ ^#.*$ || -z "$src_name" ]] && continue
-        
-        src_name=$(echo $src_name | xargs)
-        dst_rel=$(echo $dst_rel | xargs)
-        
-        source="$DOTFILES_DIR/common/$src_name"
-        target="$HOME/$dst_rel"
-        
-        if [ ! -f "$source" ]; then
-            echo "Warning: Source file $source not found. Skipping."
-            continue
-        fi
-        
-            # Ensure target directory exists
+# Read and apply links
+LINKS_FILES=("$DOTFILES_DIR/common/links.txt")
+if [ "$OS" == "Darwin" ]; then
+    LINKS_FILES+=("$DOTFILES_DIR/macos/links.txt")
+elif [ "$OS" == "Linux" ]; then
+    LINKS_FILES+=("$DOTFILES_DIR/linux/links.txt")
+fi
+
+for links_file in "${LINKS_FILES[@]}"; do
+    if [ -f "$links_file" ]; then
+        echo "Processing links from $(basename "$links_file")..."
+        while IFS=':' read -r src_name dst_rel || [ -n "$src_name" ]; do
+            [[ "$src_name" =~ ^#.*$ || -z "$src_name" ]] && continue
+            
+            source="$DOTFILES_DIR/common/$src_name"
+            target="$HOME/$dst_rel"
+            
+            if [ ! -f "$source" ]; then
+                echo "Warning: Source file $source not found. Skipping."
+                continue
+            fi
+            
             mkdir -p "$(dirname "$target")"
             
-            # Special permissions for .ssh directory and config
             if [[ "$dst_rel" == ".ssh/"* ]]; then
                 chmod 700 "$HOME/.ssh" 2>/dev/null || true
             fi
-                # Backup existing file if it's not a link
-        if [ -e "$target" ] && [ ! -L "$target" ]; then
-            echo "Backing up $target"
-            mv "$target" "/tmp/$(basename "$target").bak"
-        fi
-        
-        # Remove existing link or file to ensure fresh link
-        if [ -L "$target" ] || [ -e "$target" ]; then
-            rm -rf "$target"
-        fi
-        
-        echo "Linking $dst_rel"
-        ln -s "$source" "$target"
-    done < "$LINKS_FILE"
+
+            if [ -e "$target" ] && [ ! -L "$target" ]; then
+                echo "Backing up $target"
+                mv "$target" "/tmp/$(basename "$target").bak"
+            fi
+            
+            if [ -L "$target" ] || [ -e "$target" ]; then
+                rm -rf "$target"
+            fi
+            
+            echo "Linking $dst_rel"
+            ln -s "$source" "$target"
+        done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$links_file")
+    fi
+done
+
+# init OS-specific settings
+if [ "$OS" == "Darwin" ]; then
+    source "$DOTFILES_DIR/macos/init.sh"
+elif [ "$OS" == "Linux" ]; then
+    source "$DOTFILES_DIR/linux/init.sh"
 fi
 
-# 5. Finalize: Change Default Shell
-# We do this at the very end as it might prompt for a password
+bash "$SCRIPTS_DIR/setup-shell.sh"
+
+# Run selected setup steps
+[ "$DO_CORE" = true ] && bash "$SCRIPTS_DIR/setup-tools.sh"
+[ "$DO_RUNTIME" = true ] && bash "$SCRIPTS_DIR/setup-runtimes.sh"
+[ "$DO_APPS" = true ] && bash "$SCRIPTS_DIR/setup-apps.sh"
+[ "$DO_FONTS" = true ] && bash "$SCRIPTS_DIR/setup-fonts.sh"
+
+# 4. Finalize: Change Default Shell
 ZSH_PATH="$(which zsh)"
 if [ "$SHELL" != "$ZSH_PATH" ]; then
     echo "Changing your default shell to zsh..."

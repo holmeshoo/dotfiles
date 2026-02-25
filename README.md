@@ -40,6 +40,27 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 └── scripts/          # 共通のセットアップ・保守ロジック (install, update, dump)
 ```
 
+## セットアップ項目の分類について
+
+本リポジトリでは、インストールする項目を以下の基準で分類しています。
+
+### Core Tools (ツール)
+OSそのものを便利にするための「インフラ的な道具」です。
+- 特徴: 開発言語に関わらず常に使用するもの。OS標準のパッケージマネージャ、およびグローバルな `npm`/`cargo` パッケージとして管理されます。
+- 例: `git`, `micro`, `starship`, `tmux`, `fzf`, `rg` (ripgrep), `bat`, `gemini-cli` など。
+- 管理ファイル: `macos/Brewfile.core`, `linux/apt-packages.txt`, `windows/winget-packages.txt`, `common/npm-packages.txt`, `common/cargo-packages.txt`
+
+### Language Runtimes (ランタイム)
+コードを書いたり実行したりするための「言語環境」です。
+- 特徴: プロジェクトごとにバージョンを切り替える必要があるもの。`mise` を介してユーザー領域にインストールされます。
+- 例: `Node.js`, `Python`, `Rust`, `Go`, `Haskell`, `Flutter` など。
+- 管理ファイル: `common/.mise.toml`
+
+### Heavy Applications (アプリ)
+GUIを持つ大型のソフトウェアです。
+- 例: `VSCode`, `Vivaldi`, `Docker`, `Android Studio` など。
+- 管理ファイル: `macos/Brewfile.apps`, `linux/external-apps.txt`, `windows/winget-apps.txt`
+
 ## メンテナンス用コマンド
 
 環境を常に最新の状態に保つための便利なスクリプト群を用意しています：
