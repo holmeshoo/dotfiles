@@ -178,7 +178,7 @@ fi
 if [ "$TEST_FONTS" = true ]; then
     echo -e "\n[5. Fonts]"
     if [ "$OS" == "Darwin" ]; then
-        # 1. Check Brew Casks
+        # Check Brew Casks
         BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
         if [ -f "$BREWFILE" ]; then
             grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
