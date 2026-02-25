@@ -76,7 +76,10 @@ LINKS_FILE="$(dirname "$0")/../common/links.txt"
 if [ -f "$LINKS_FILE" ]; then
     while IFS=':' read -r src dst || [ -n "$src" ]; do
         [[ "$src" =~ ^#.*$ || -z "$src" ]] && continue
-        check_link "$(echo $dst | xargs)"
+        # Trim whitespace
+        dst="${dst#"${dst%%[![:space:]]*}"}"
+        dst="${dst%"${dst##*[![:space:]]}"}"
+        check_link "$dst"
     done < "$LINKS_FILE"
 fi
 
@@ -117,7 +120,12 @@ if [ "$TEST_CORE" = true ]; then
     if [ -f "$EXT_TOOLS" ]; then
         while IFS=':' read -r name check_expr inst || [ -n "$name" ]; do
             [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-            check_status "$(echo $name | xargs)" "$(echo $check_expr | xargs)"
+            # Trim whitespace
+            name="${name#"${name%%[![:space:]]*}"}"
+            name="${name%"${name##*[![:space:]]}"}"
+            check_expr="${check_expr#"${check_expr%%[![:space:]]*}"}"
+            check_expr="${check_expr%"${check_expr##*[![:space:]]}"}"
+            check_status "$name" "$check_expr"
         done < "$EXT_TOOLS"
     fi
 fi

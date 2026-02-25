@@ -19,7 +19,15 @@ elif [ "$OS" == "Linux" ]; then
     if [ -f "$LIST" ]; then
         while IFS=':' read -r name check_cmd install_cmd || [ -n "$name" ]; do
             [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
-            name=$(echo $name | xargs); check_cmd=$(echo $check_cmd | xargs); install_cmd=$(echo $install_cmd | xargs)
+            
+            # Trim whitespace
+            name="${name#"${name%%[![:space:]]*}"}"
+            name="${name%"${name##*[![:space:]]}"}"
+            check_cmd="${check_cmd#"${check_cmd%%[![:space:]]*}"}"
+            check_cmd="${check_cmd%"${check_cmd##*[![:space:]]}"}"
+            install_cmd="${install_cmd#"${install_cmd%%[![:space:]]*}"}"
+            install_cmd="${install_cmd%"${install_cmd##*[![:space:]]}"}"
+
             if ! eval "$check_cmd" &>/dev/null; then
                 echo "Installing $name..."
                 eval "$install_cmd"
