@@ -66,7 +66,6 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # --- Configuration ---
 REPO_URL="https://github.com/holmeshoo/dotfiles.git"
-TARBALL_URL="https://github.com/holmeshoo/dotfiles/archive/refs/heads/main.tar.gz"
 
 # Determine dotfiles directory
 if [ -f "$(dirname "$0")/../common/.zshrc" ]; then
@@ -84,21 +83,20 @@ if [ "$OS" == "Darwin" ]; then
         sudo xcodebuild -license accept || echo "Skipping Xcode license."
     fi
 elif [ "$OS" == "Linux" ]; then
-    if ! command -v git &> /dev/null; then
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y git
+    # Ensure apt is up to date before any sub-scripts run
+    if command -v apt-get &> /dev/null; then
+        echo "Updating package list..."
+        sudo apt-get update
+        if ! command -v git &> /dev/null; then
+            sudo apt-get install -y git
         fi
     fi
 fi
 
 # 1. Get the repository
 if [ ! -d "$DOTFILES_DIR" ]; then
-    if command -v git &> /dev/null; then
-        git clone "$REPO_URL" "$DOTFILES_DIR"
-    else
-        mkdir -p "$DOTFILES_DIR"
-        curl -L "$TARBALL_URL" | tar -xz -C "$DOTFILES_DIR" --strip-components=1
-    fi
+    echo "Cloning repository to $DOTFILES_DIR..."
+    git clone "$REPO_URL" "$DOTFILES_DIR"
 fi
 
 cd "$DOTFILES_DIR"
@@ -107,8 +105,9 @@ SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 # 3. Execution (Install Tools & Apps)
 if [ "$OS" == "Darwin" ]; then
     bash "$SCRIPTS_DIR/setup-macos.sh"
-    if [ -f /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
-    if [ -f /usr/local/bin/brew ]; then eval "$(/usr/local/bin/brew shellenv)"; fi
+    # Ensure brew is available in this process for subsequent scripts
+    [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+    [ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
 elif [ "$OS" == "Linux" ]; then
     bash "$SCRIPTS_DIR/setup-linux.sh"
 fi
@@ -122,43 +121,73 @@ bash "$SCRIPTS_DIR/setup-shell.sh"
 
 # 4. Link dotfiles (Final Step)
 echo "Creating symlinks (Finalizing)..."
-FILES=(
-    "common/.gitconfig"
-    "common/.vimrc"
-    "common/.editorconfig"
-    "common/.aliases"
-    "common/.functions"
-    "common/.bashrc"
-    "common/.zshrc"
-)
-[ "$OS" == "Linux" ] && FILES+=("linux/.bashrc_local")
 
-for file in "${FILES[@]}"; do
-    target="$HOME/$(basename "$file")"
-    source="$DOTFILES_DIR/$file"
-    
-    if [ -e "$target" ] && [ ! -L "$target" ]; then
-        mv "$target" "${target}.bak"
+# Ensure local override files exist so they can be linked
+# These are ignored by git, so they won't exist on a fresh clone
+LOCAL_FILES=(
+    "common/.zshrc_local"
+    "common/.bashrc_local"
+    "common/.gitconfig.local"
+)
+
+for f in "${LOCAL_FILES[@]}"; do
+    if [ ! -f "$DOTFILES_DIR/$f" ]; then
+        echo "Creating template for $f"
+        echo "# Local overrides (Not committed to git)" > "$DOTFILES_DIR/$f"
     fi
+done
+
+# Define mapping: "SourceFile:TargetLocation"
+LINKS=(
+    "common/.gitconfig:.gitconfig"
+    "common/.gitconfig.local:.gitconfig.local"
+    "common/.vimrc:.vimrc"
+    "common/.editorconfig:.editorconfig"
+    "common/.aliases:.aliases"
+    "common/.functions:.functions"
+    "common/.bashrc:.bashrc"
+    "common/.zshrc:.zshrc"
+    "common/.bashrc_local:.bashrc_local"
+    "common/.zshrc_local:.zshrc_local"
+    "common/.mise.toml:.config/mise/config.toml"
+)
+
+for item in "${LINKS[@]}"; do
+    src_rel="${item%%:*}"
+    dst_rel="${item##*:}"
+    
+    source="$DOTFILES_DIR/$src_rel"
+    target="$HOME/$dst_rel"
+    
+    if [ ! -f "$source" ]; then
+        echo "Warning: Source file $source not found. Skipping."
+        continue
+    fi
+    
+    # Ensure target directory exists
+    mkdir -p "$(dirname "$target")"
+    
+    # Backup existing file if it's not a link
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+        echo "Backing up $target"
+        mv "$target" "/tmp/$(basename "$target").bak"
+    fi
+    
+    # Remove existing link or file to ensure fresh link
     if [ -L "$target" ] || [ -e "$target" ]; then
         rm -rf "$target"
     fi
+    
+    echo "Linking $dst_rel"
     ln -s "$source" "$target"
 done
 
-# Special link for mise config
-MISE_CONFIG_DIR="$HOME/.config/mise"
-mkdir -p "$MISE_CONFIG_DIR"
-ln -sf "$DOTFILES_DIR/common/.mise.toml" "$MISE_CONFIG_DIR/config.toml"
-
 # 5. Finalize: Change Default Shell
 # We do this at the very end as it might prompt for a password
-if [ "$OS" == "Darwin" ] || [ "$OS" == "Linux" ]; then
-    ZSH_PATH="$(which zsh)"
-    if [ "$SHELL" != "$ZSH_PATH" ]; then
-        echo "Changing your default shell to zsh..."
-        sudo chsh -s "$ZSH_PATH" "$(whoami)"
-    fi
+ZSH_PATH="$(which zsh)"
+if [ "$SHELL" != "$ZSH_PATH" ]; then
+    echo "Changing your default shell to zsh..."
+    sudo chsh -s "$ZSH_PATH" "$(whoami)"
 fi
 
 echo "Successfully installed dotfiles!"

@@ -2,12 +2,11 @@
 
 set -e
 
-echo "Starting macOS setup..."
+echo "Starting macOS base setup (Homebrew)..."
 
 # Install Homebrew if not found
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew..."
-    # NONINTERACTIVE=1 を指定して、ENTERキーの入力をスキップする
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     
     # Add brew to PATH for the current session
@@ -18,21 +17,4 @@ if ! command -v brew &> /dev/null; then
     fi
 fi
 
-# Install packages from Brewfile
-BREWFILE="$(dirname "$0")/../macos/Brewfile"
-if [ -f "$BREWFILE" ]; then
-    echo "Installing packages from Brewfile..."
-    
-    # gitが既存のツールと競合してエラーになることが多いため、
-    # リンクが壊れている場合は事前に修復を試みる
-    if brew list git &>/dev/null; then
-        echo "Git is already installed via Homebrew. Ensuring it is linked..."
-        brew link --overwrite git
-    fi
-    
-    # brew bundle を実行。エラーがあればここでスクリプトが停止します。
-    # --verbose を追加して進捗を表示するようにしました
-    brew bundle --file="$BREWFILE" --verbose
-fi
-
-echo "macOS setup complete."
+echo "macOS base setup complete."

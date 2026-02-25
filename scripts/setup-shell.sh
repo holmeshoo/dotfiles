@@ -7,6 +7,8 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Installing Oh My Zsh..."
     # Keep the installer from changing the shell immediately or running zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+else
+    echo "Oh My Zsh already installed. Skipping..."
 fi
 
 # 3. Install useful plugins (Optional but recommended)
