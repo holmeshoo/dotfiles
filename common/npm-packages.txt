@@ -1,3 +1,8 @@
 # Global NPM Packages
 # format: PACKAGE_NAME
 @google/gemini-cli
+typescript
+ts-node
+serve
+npm-check-updates
+tldr

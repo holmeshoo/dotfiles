@@ -13,3 +13,6 @@ translate-shell
 tmux
 sl
 fzf
+gh
+jq
+lazygit

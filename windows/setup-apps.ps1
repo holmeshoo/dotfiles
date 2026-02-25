@@ -19,4 +19,15 @@ if (Test-Path $listFile) {
     }
 }
 
+# Link VSCode settings (Windows)
+$vscSettingsDir = Join-Path $env:APPDATA "Code\User"
+$vscSettingsSource = Join-Path $dotfilesDir "common\vscode\settings.json"
+$vscSettingsTarget = Join-Path $vscSettingsDir "settings.json"
+
+if (!(Test-Path $vscSettingsDir)) {
+    New-Item -ItemType Directory -Path $vscSettingsDir -Force
+}
+Write-Host "Linking VSCode settings..." -ForegroundColor Yellow
+New-Item -ItemType SymbolicLink -Path $vscSettingsTarget -Value $vscSettingsSource -Force
+
 Write-Host "Applications installed." -ForegroundColor Green

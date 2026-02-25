@@ -1,3 +1,9 @@
 # Global Cargo Packages
 # format: CRATE_NAME
 typst-cli
+ripgrep
+fd-find
+eza
+bat
+procs
+bottom
