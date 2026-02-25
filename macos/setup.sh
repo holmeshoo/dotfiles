@@ -17,4 +17,7 @@ if ! command -v brew &> /dev/null; then
     fi
 fi
 
+# Apply system settings (defaults write)
+bash "$(dirname "$0")/defaults.sh"
+
 echo "macOS base setup complete."

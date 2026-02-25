@@ -1,0 +1,5 @@
+# OS-specific external tools for Windows
+# format: NAME : CHECK_COMMAND : INSTALL_COMMAND
+
+# Example:
+# starship : starship : winget install --id Starship.Starship -e --source winget

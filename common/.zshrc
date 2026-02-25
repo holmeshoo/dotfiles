@@ -13,8 +13,19 @@ fi
 # Local bin
 export PATH="$HOME/.local/bin:$PATH"
 
+# Android SDK
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+else
+    export ANDROID_HOME="$HOME/Android/Sdk"
+fi
+export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
+
+# Flutter
+export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia" # macOS Web Debug
+
 # Set name of the theme to load
-ZSH_THEME="robbyrussell"
+ZSH_THEME="cloud"
 
 # Which plugins would you like to load?
 plugins=(

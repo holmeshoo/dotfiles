@@ -152,10 +152,14 @@ if [ -f "$LINKS_FILE" ]; then
             continue
         fi
         
-        # Ensure target directory exists
-        mkdir -p "$(dirname "$target")"
-        
-        # Backup existing file if it's not a link
+            # Ensure target directory exists
+            mkdir -p "$(dirname "$target")"
+            
+            # Special permissions for .ssh directory and config
+            if [[ "$dst_rel" == ".ssh/"* ]]; then
+                chmod 700 "$HOME/.ssh" 2>/dev/null || true
+            fi
+                # Backup existing file if it's not a link
         if [ -e "$target" ] && [ ! -L "$target" ]; then
             echo "Backing up $target"
             mv "$target" "/tmp/$(basename "$target").bak"

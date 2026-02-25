@@ -10,3 +10,5 @@ btop
 htop
 zsh
 translate-shell
+tmux
+sl

@@ -3,3 +3,4 @@ Microsoft.VisualStudioCode : code
 Vivaldi.Vivaldi : vivaldi
 Docker.DockerCLI : docker
 Docker.DockerCompose : docker-compose
+Google.AndroidStudio : studio64

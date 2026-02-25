@@ -3,3 +3,4 @@
 .zshrc_local
 .bashrc_local
 .gitconfig.local
+.ssh/config.local

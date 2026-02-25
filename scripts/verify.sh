@@ -24,7 +24,6 @@ TEST_RUNTIME=false
 TEST_APPS=false
 
 if [[ "$#" -eq 0 ]]; then
-    # Default: Test everything if no arguments
     TEST_CORE=true
     TEST_RUNTIME=true
     TEST_APPS=true
@@ -57,52 +56,104 @@ check_link() {
 }
 
 check_cmd() {
-    if command -v "$1" &> /dev/null; then
-        echo -e "${GREEN}✓${NC} Command available: $1 ($(which $1))"
+    local cmd="$1"
+    if command -v "$cmd" &> /dev/null; then
+        echo -e "${GREEN}✓${NC} Command available: $cmd"
     else
-        echo -e "${RED}✗${NC} Command missing: $1"
+        echo -e "${RED}✗${NC} Command missing: $cmd"
         exit 1
     fi
 }
 
-echo -e "
-[1. Symlinks]"
+# --- 1. Symlinks ---
+echo -e "\n[1. Symlinks]"
 LINKS_FILE="$(dirname "$0")/../common/links.txt"
 if [ -f "$LINKS_FILE" ]; then
-    while IFS=':' read -r src_rel dst_rel || [ -n "$src_rel" ]; do
-        [[ "$src_rel" =~ ^#.*$ || -z "$src_rel" ]] && continue
-        dst_rel=$(echo $dst_rel | xargs)
-        check_link "$dst_rel"
+    while IFS=':' read -r src dst || [ -n "$src" ]; do
+        [[ "$src" =~ ^#.*$ || -z "$src" ]] && continue
+        check_link "$(echo $dst | xargs)"
     done < "$LINKS_FILE"
-else
-    echo -e "${RED}✗${NC} LINKS_FILE not found: $LINKS_FILE"
-    exit 1
 fi
 
-echo -e "
-[2. Tools & Apps]"
-
+# --- 2. Core Tools ---
 if [ "$TEST_CORE" = true ]; then
-    echo "Verifying Core Tools..."
-    [ "$OS" == "Darwin" ] && check_cmd "brew"
-    check_cmd "git"
-    check_cmd "micro"
-    check_cmd "btop"
-    check_cmd "starship"
+    echo -e "\n[2. Core Tools]"
+    if [ "$OS" == "Darwin" ]; then
+        check_cmd "brew"
+        # Parse Brewfile.core for 'brew "package"' pattern
+        BREWFILE="$(dirname "$0")/../macos/Brewfile.core"
+        if [ -f "$BREWFILE" ]; then
+            grep '^brew "' "$BREWFILE" | sed 's/brew "\(.*\)"/\1/' | while read -r pkg; do
+                # Note: Some pkgs like 'llvm' don't have matching command names,
+                # but for most simple CLI tools this works.
+                case $pkg in
+                    llvm) check_cmd "clang" ;;
+                    translate-shell) check_cmd "trans" ;;
+                    cocoapods) check_cmd "pod" ;;
+                    *) check_cmd "$pkg" ;;
+                esac
+            done
+        fi
+    elif [ "$OS" == "Linux" ]; then
+        LIST="$(dirname "$0")/../linux/apt-packages.txt"
+        if [ -f "$LIST" ]; then
+            grep -v '^#' "$LIST" | while read -r pkg; do
+                case $pkg in
+                    build-essential) check_cmd "make" ;;
+                    translate-shell) check_cmd "trans" ;;
+                    *) check_cmd "$pkg" ;;
+                esac
+            done
+        fi
+    fi
+    
+    # OS-specific external tools
+    EXT_TOOLS=""
+    [ "$OS" == "Darwin" ] && EXT_TOOLS="$(dirname "$0")/../macos/external-tools.txt"
+    [ "$OS" == "Linux" ] && EXT_TOOLS="$(dirname "$0")/../linux/external-tools.txt"
+    if [ -f "$EXT_TOOLS" ]; then
+        while IFS=':' read -r name check_cmd_name inst || [ -n "$name" ]; do
+            [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+            check_cmd "$(echo $check_cmd_name | xargs)"
+        done < "$EXT_TOOLS"
+    fi
 fi
 
+# --- 3. Runtimes ---
 if [ "$TEST_RUNTIME" = true ]; then
-    echo "Verifying Runtimes..."
+    echo -e "\n[3. Runtimes]"
     check_cmd "mise"
-    # Note: Languages themselves (node, etc.) might need a shell restart to be in PATH
 fi
 
+# --- 4. Apps ---
 if [ "$TEST_APPS" = true ]; then
-    echo "Verifying Heavy Applications..."
-    check_cmd "code"
-    check_cmd "vivaldi"
-    [ "$OS" == "Darwin" ] && check_cmd "colima"
+    echo -e "\n[4. Heavy Applications]"
+    if [ "$OS" == "Darwin" ]; then
+        BREWFILE="$(dirname "$0")/../macos/Brewfile.apps"
+        if [ -f "$BREWFILE" ]; then
+            # Check Casks
+            grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
+                case $pkg in
+                    visual-studio-code) check_cmd "code" ;;
+                    thebrowsercompany-dia) check_cmd "dia" ;;
+                    vivaldi) check_cmd "vivaldi" ;;
+                    android-studio) check_cmd "studio" ;;
+                esac
+            done
+            # Check Formulae in apps (like docker/colima)
+            grep '^brew "' "$BREWFILE" | sed 's/brew "\(.*\)"/\1/' | while read -r pkg; do
+                check_cmd "$pkg"
+            done
+        fi
+    elif [ "$OS" == "Linux" ]; then
+        LIST="$(dirname "$0")/../linux/external-apps.txt"
+        if [ -f "$LIST" ]; then
+            while IFS=':' read -r name check_cmd_name inst || [ -n "$name" ]; do
+                [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+                check_cmd "$(echo $check_cmd_name | xargs)"
+            done < "$LIST"
+        fi
+    fi
 fi
 
-echo -e "
---- Verification Successful ---"
+echo -e "\n--- Verification Successful ---"

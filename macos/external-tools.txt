@@ -1,0 +1,5 @@
+# OS-specific external tools for macOS
+# format: NAME : CHECK_COMMAND : INSTALL_COMMAND
+
+# Example: (Though most tools should be in Brewfile.core)
+# rust-analyzer : rust-analyzer : brew install rust-analyzer

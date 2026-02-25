@@ -9,5 +9,8 @@
 .zshrc : .zshrc
 .bashrc_local : .bashrc_local
 .zshrc_local : .zshrc_local
+.tmux.conf : .tmux.conf
+.ssh/config : .ssh/config
+.ssh/config.local : .ssh/config.local
 .starship.toml : .config/starship.toml
 .mise.toml : .config/mise/config.toml

@@ -7,3 +7,4 @@ Microsoft.VisualStudioCode
 Vivaldi.Vivaldi
 Docker.DockerCLI
 Docker.DockerCompose
+mtoyoda.sl
