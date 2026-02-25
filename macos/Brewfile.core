@@ -16,3 +16,6 @@ brew "tmux"
 brew "sl"
 brew "fzf"
 brew "git-delta"
+
+# Fonts
+cask "font-hack-nerd-font"

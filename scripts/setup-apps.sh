@@ -36,4 +36,17 @@ if [ "$OS" == "Linux" ]; then
     fi
 fi
 
+# 3. VSCode Extensions (Cross-platform)
+if command -v code &>/dev/null; then
+    EXT_LIST="$(dirname "$0")/../common/vscode-extensions.txt"
+    if [ -f "$EXT_LIST" ]; then
+        echo "Installing VSCode extensions..."
+        while read -r ext || [ -n "$f" ]; do
+            [[ "$ext" =~ ^#.*$ || -z "$ext" ]] && continue
+            echo "  -> $ext"
+            code --install-extension "$ext" --force
+        done < "$EXT_LIST"
+    fi
+fi
+
 echo "Applications installed."

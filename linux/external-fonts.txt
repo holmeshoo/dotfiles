@@ -1,4 +1,2 @@
 # format: NAME : CHECK_COMMAND : INSTALL_COMMAND
-starship : starship : curl -sS https://starship.rs/install.sh | sh -s -- -y
-mise : mise : curl https://mise.jdx.dev/install.sh | sh
 hack-nerd-font : fc-list | grep -i "Hack Nerd Font" : mkdir -p ~/.local/share/fonts && curl -L https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip -o /tmp/Hack.zip && unzip -o /tmp/Hack.zip -d ~/.local/share/fonts && fc-cache -f

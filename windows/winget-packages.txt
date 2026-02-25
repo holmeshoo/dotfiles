@@ -10,3 +10,6 @@ Docker.DockerCompose
 mtoyoda.sl
 junegunn.fzf
 dandavison.delta
+GitHub.HackNerdFont
+Google.NotoSansJP
+Adobe.SourceHanSans

@@ -72,14 +72,16 @@ function Confirm-Action($prompt) {
 
 Write-Host "`n--- Select Setup Levels ---" -ForegroundColor Yellow
 
-if (Confirm-Action "Install EVERYTHING (Core, Language, and Heavy)?") {
+if (Confirm-Action "Install EVERYTHING (Core, Language, Heavy, and Fonts)?") {
     & "$scriptsDir\setup-tools.ps1"
     & "$scriptsDir\setup-runtimes.ps1"
     & "$scriptsDir\setup-apps.ps1"
+    & "$scriptsDir\setup-fonts.ps1"
 } else {
     if (Confirm-Action "1. [Core] CLI Tools?") { & "$scriptsDir\setup-tools.ps1" }
     if (Confirm-Action "2. [Language] Runtimes?") { & "$scriptsDir\setup-runtimes.ps1" }
     if (Confirm-Action "3. [Heavy] Applications?") { & "$scriptsDir\setup-apps.ps1" }
+    if (Confirm-Action "4. [Fonts] System Fonts?") { & "$scriptsDir\setup-fonts.ps1" }
 }
 
 Write-Host "`nSuccessfully installed dotfiles!" -ForegroundColor Green

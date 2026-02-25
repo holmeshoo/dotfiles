@@ -1,0 +1,4 @@
+# format: WINGET_ID : CHECK_COMMAND
+GitHub.HackNerdFont : Hack
+Google.NotoSansJP : Noto Sans JP
+Adobe.SourceHanSans : Source Han Sans

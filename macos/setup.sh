@@ -20,4 +20,9 @@ fi
 # Apply system settings (defaults write)
 bash "$(dirname "$0")/defaults.sh"
 
+# Link VSCode settings
+VSCODE_SETTING_DIR="$HOME/Library/Application Support/Code/User"
+mkdir -p "$VSCODE_SETTING_DIR"
+ln -sf "$(dirname "$0")/../common/vscode/settings.json" "$VSCODE_SETTING_DIR/settings.json"
+
 echo "macOS base setup complete."

@@ -12,10 +12,11 @@ fi
 usage() {
     echo "Usage: $0 [options]"
     echo "Options:"
-    echo "  --all       Install everything (Core, Runtime, and Apps)"
+    echo "  --all       Install everything (Core, Runtime, Apps, and Fonts)"
     echo "  --core      Install Core CLI tools"
     echo "  --runtime   Install Language runtimes"
     echo "  --apps      Install Heavy applications"
+    echo "  --fonts     Install Fonts"
     echo "  --help      Show this help"
     exit 0
 }
@@ -24,15 +25,17 @@ usage() {
 DO_CORE=false
 DO_RUNTIME=false
 DO_APPS=false
+DO_FONTS=false
 
 # Parse arguments if provided
 if [[ "$#" -gt 0 ]]; then
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --all) DO_CORE=true; DO_RUNTIME=true; DO_APPS=true ;;
+            --all) DO_CORE=true; DO_RUNTIME=true; DO_APPS=true; DO_FONTS=true ;;
             --core) DO_CORE=true ;;
             --runtime) DO_RUNTIME=true ;;
             --apps) DO_APPS=true ;;
+            --fonts) DO_FONTS=true ;;
             --help) usage ;;
             *) echo "Unknown parameter: $1"; usage ;;
         esac
@@ -42,20 +45,23 @@ else
     # Graphical Selection (Whiptail) only if no arguments
     if command -v whiptail &>/dev/null; then
         CHOICES=$(whiptail --title "Dotfiles Setup" --checklist \
-        "Space to select/deselect, Enter to confirm:" 15 60 3 \
+        "Space to select/deselect, Enter to confirm:" 15 60 4 \
         "Core" "CLI Tools (micro, git, etc.)" ON \
         "Runtime" "Language runtimes (Node, Python)" ON \
-        "Apps" "Heavy applications (Docker, VSCode)" OFF 3>&1 1>&2 2>&3) || exit 1
+        "Apps" "Heavy applications (Docker, VSCode)" OFF \
+        "Fonts" "Nerd Fonts and Japanese fonts" OFF 3>&1 1>&2 2>&3) || exit 1
 
         [[ $CHOICES == *"Core"* ]] && DO_CORE=true
         [[ $CHOICES == *"Runtime"* ]] && DO_RUNTIME=true
         [[ $CHOICES == *"Apps"* ]] && DO_APPS=true
+        [[ $CHOICES == *"Fonts"* ]] && DO_FONTS=true
     else
         # Fallback to simple confirm if whiptail is missing
         confirm() { read -p "$1 [y/N]: " response; [[ "$response" =~ ^[yY] ]] && return 0 || return 1; }
         confirm "Install Core CLI Tools?" && DO_CORE=true
         confirm "Install Language Runtimes?" && DO_RUNTIME=true
         confirm "Install Heavy Applications?" && DO_APPS=true
+        confirm "Install Fonts?" && DO_FONTS=true
     fi
 fi
 
@@ -118,6 +124,7 @@ bash "$SCRIPTS_DIR/setup-shell.sh"
 [ "$DO_CORE" = true ] && bash "$SCRIPTS_DIR/setup-tools.sh"
 [ "$DO_RUNTIME" = true ] && bash "$SCRIPTS_DIR/setup-runtimes.sh"
 [ "$DO_APPS" = true ] && bash "$SCRIPTS_DIR/setup-apps.sh"
+[ "$DO_FONTS" = true ] && bash "$SCRIPTS_DIR/setup-fonts.sh"
 
 # 4. Link dotfiles (Final Step)
 echo "Creating symlinks (Finalizing)..."
