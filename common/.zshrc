@@ -84,6 +84,11 @@ if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
 fi
 
+# fzf initialization
+if command -v fzf &> /dev/null; then
+    source <(fzf --zsh)
+fi
+
 # Platform specific zshrc
 if [ -f ~/.zshrc_local ]; then
     . ~/.zshrc_local

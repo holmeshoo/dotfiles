@@ -8,3 +8,5 @@ Vivaldi.Vivaldi
 Docker.DockerCLI
 Docker.DockerCompose
 mtoyoda.sl
+junegunn.fzf
+dandavison.delta

@@ -4,13 +4,46 @@
 [core]
 	editor = vim
 	autocrlf = input
+	pager = delta
 [init]
 	defaultBranch = main
 [pull]
 	rebase = false
-
 [push]
 	autoSetupRemote = true
+
+[commit]
+	template = ~/.gitmessage
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true    # use n and N to move between diff sections
+	light = false      # set to true if you're using a light terminal theme
+	side-by-side = true
+	line-numbers = true
+
+[merge]
+	conflictstyle = zdiff3
+
+[alias]
+	# Basic
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	
+	# Logging
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	last = log -1 HEAD
+	
+	# Diff
+	df = diff
+	dc = diff --cached
+	
+	# Cleanup
+	gone = ! "git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d"
 
 [include]
 	path = ~/.gitconfig.local

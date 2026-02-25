@@ -1,6 +1,7 @@
 # format: SOURCE_FILENAME : TARGET_PATH_RELATIVE_TO_HOME
 .gitconfig : .gitconfig
 .gitconfig.local : .gitconfig.local
+.gitmessage : .gitmessage
 .vimrc : .vimrc
 .editorconfig : .editorconfig
 .aliases : .aliases

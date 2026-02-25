@@ -12,3 +12,5 @@ zsh
 translate-shell
 tmux
 sl
+fzf
+git-delta
