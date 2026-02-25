@@ -1,5 +1,6 @@
 # Fonts
-tap "homebrew/cask-fonts"
+# Fonts were migrated to homebrew/cask, no tap required as of 2024.
 
 cask "font-hack-nerd-font"
 cask "font-noto-sans-jp"
+cask "font-source-han-sans"
