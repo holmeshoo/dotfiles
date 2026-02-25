@@ -65,7 +65,7 @@ jobs:
         shell: pwsh
         run: |
           # Windows execution
-          .\scripts\install.ps1
+          .\windows\install.ps1
         env:
           CI: true
 

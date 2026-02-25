@@ -104,12 +104,12 @@ SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 
 # 3. Execution (Install Tools & Apps)
 if [ "$OS" == "Darwin" ]; then
-    bash "$SCRIPTS_DIR/setup-macos.sh"
+    bash "$DOTFILES_DIR/macos/setup.sh"
     # Ensure brew is available in this process for subsequent scripts
     [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
     [ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
 elif [ "$OS" == "Linux" ]; then
-    bash "$SCRIPTS_DIR/setup-linux.sh"
+    bash "$DOTFILES_DIR/linux/setup.sh"
 fi
 
 bash "$SCRIPTS_DIR/setup-shell.sh"
@@ -149,6 +149,7 @@ LINKS=(
     "common/.zshrc:.zshrc"
     "common/.bashrc_local:.bashrc_local"
     "common/.zshrc_local:.zshrc_local"
+    "common/.starship.toml:.config/starship.toml"
     "common/.mise.toml:.config/mise/config.toml"
 )
 

@@ -1,0 +1,27 @@
+# Starship Configuration
+# https://starship.rs/config/
+
+format = """
+$directory
+$git_branch
+$git_status
+$node
+$python
+$rust
+$golang
+$line_break
+$character"""
+
+[directory]
+style = "blue bold"
+
+[git_branch]
+symbol = " "
+style = "magenta bold"
+
+[git_status]
+style = "red bold"
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"

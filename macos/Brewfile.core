@@ -1,0 +1,13 @@
+# CLI Tools (Core)
+brew "micro"
+brew "git"
+brew "tree"
+brew "curl"
+brew "cmake"
+brew "llvm"
+brew "btop"
+brew "htop"
+brew "zsh"
+brew "starship"
+brew "mise"
+brew "translate-shell"

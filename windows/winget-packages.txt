@@ -2,6 +2,7 @@ zyedidia.micro
 Git.Git
 aristocratos.btop
 GNU.Wget
+Starship.Starship
 Microsoft.VisualStudioCode
 Vivaldi.Vivaldi
 Docker.DockerCLI

@@ -1,0 +1,5 @@
+# format: WINGET_ID : CHECK_COMMAND
+Microsoft.VisualStudioCode : code
+Vivaldi.Vivaldi : vivaldi
+Docker.DockerCLI : docker
+Docker.DockerCompose : docker-compose

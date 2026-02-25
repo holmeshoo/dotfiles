@@ -1,7 +1,7 @@
 # PowerShell Installation Script for dotfiles
 
 $dotfilesDir = Split-Path -Parent $PSScriptRoot
-$scriptsDir = Join-Path $dotfilesDir "scripts"
+$scriptsDir = $PSScriptRoot # すでに windows/ フォルダ内にいる前提
 $homeDir = $HOME
 
 Write-Host "--- Dotfiles Installation (Windows) ---" -ForegroundColor Cyan
@@ -17,7 +17,6 @@ $commonFiles = @(
 Write-Host "`nCreating symlinks..." -ForegroundColor Yellow
 foreach ($file in $commonFiles) {
     $source = Join-Path $dotfilesDir $file
-    # filenames in common already start with '.'
     $target = Join-Path $homeDir (Split-Path -Leaf $file)
     
     if (Test-Path $target) {
@@ -38,6 +37,17 @@ if (!(Test-Path $miseConfigDir)) {
 }
 Write-Host "Linking mise config..." -ForegroundColor Yellow
 New-Item -ItemType SymbolicLink -Path $miseConfigTarget -Value $miseConfigSource -Force
+
+# 1.6 Special Symlink for starship (Windows)
+$starshipConfigDir = Join-Path $homeDir ".config"
+$starshipConfigSource = Join-Path $dotfilesDir "common\.starship.toml"
+$starshipConfigTarget = Join-Path $starshipConfigDir "starship.toml"
+
+if (!(Test-Path $starshipConfigDir)) {
+    New-Item -ItemType Directory -Path $starshipConfigDir -Force
+}
+Write-Host "Linking starship config..." -ForegroundColor Yellow
+New-Item -ItemType SymbolicLink -Path $starshipConfigTarget -Value $starshipConfigSource -Force
 
 # 2. Setup PowerShell Profile
 $profilePath = $PROFILE
@@ -67,9 +77,9 @@ if (Confirm-Action "Install EVERYTHING (Core, Language, and Heavy)?") {
     & "$scriptsDir\setup-runtimes.ps1"
     & "$scriptsDir\setup-apps.ps1"
 } else {
-    if (Confirm-Action "1. [Core] CLI Tools (micro, git, btop, etc.)?") { & "$scriptsDir\setup-tools.ps1" }
-    if (Confirm-Action "2. [Language] Runtimes (Node, Python, Go)?") { & "$scriptsDir\setup-runtimes.ps1" }
-    if (Confirm-Action "3. [Heavy] Applications (Docker, VSCode, Arc, Vivaldi)?") { & "$scriptsDir\setup-apps.ps1" }
+    if (Confirm-Action "1. [Core] CLI Tools?") { & "$scriptsDir\setup-tools.ps1" }
+    if (Confirm-Action "2. [Language] Runtimes?") { & "$scriptsDir\setup-runtimes.ps1" }
+    if (Confirm-Action "3. [Heavy] Applications?") { & "$scriptsDir\setup-apps.ps1" }
 }
 
 Write-Host "`nSuccessfully installed dotfiles!" -ForegroundColor Green

@@ -68,6 +68,11 @@ if [ -f ~/.functions ]; then
     . ~/.functions
 fi
 
+# Starship Prompt
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+fi
+
 # Platform specific zshrc
 if [ -f ~/.zshrc_local ]; then
     . ~/.zshrc_local

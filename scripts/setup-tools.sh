@@ -6,22 +6,49 @@ echo "Installing Core Tools..."
 
 OS="$(uname)"
 
+# 1. Platform-specific standard packages
 if [ "$OS" == "Darwin" ]; then
-    # macOS: すべて Brewfile に任せる (tools & apps)
-    BREWFILE="$(dirname "$0")/../macos/Brewfile"
+    BREWFILE="$(dirname "$0")/../macos/Brewfile.core"
     if [ -f "$BREWFILE" ]; then
-        echo "Installing packages from Brewfile..."
+        echo "Installing core packages from Brewfile.core..."
         brew bundle --file="$BREWFILE" --verbose
     fi
 elif [ "$OS" == "Linux" ]; then
-    echo "Installing core tools via package manager..."
     if command -v apt-get &> /dev/null; then
         LIST="$(dirname "$0")/../linux/apt-packages.txt"
         if [ -f "$LIST" ]; then
-            # ファイルからパッケージを読み込んで一括インストール
             grep -v '^#' "$LIST" | xargs sudo apt-get install -y
         fi
     fi
 fi
+
+# 2. External tools via URL (Data-driven & Platform-aware)
+# List of files to process based on OS
+LISTS=()
+if [ "$OS" == "Darwin" ]; then
+    LISTS+=("$(dirname "$0")/../macos/external-tools.txt")
+elif [ "$OS" == "Linux" ]; then
+    LISTS+=("$(dirname "$0")/../linux/external-tools.txt")
+fi
+
+for list_file in "${LISTS[@]}"; do
+    if [ -f "$list_file" ]; then
+        echo "Processing external tools from $(basename "$list_file")..."
+        while IFS=':' read -r name check_cmd install_cmd || [ -n "$name" ]; do
+            [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+            
+            name=$(echo $name | xargs)
+            check_cmd=$(echo $check_cmd | xargs)
+            install_cmd=$(echo $install_cmd | xargs)
+
+            if ! command -v "$check_cmd" &>/dev/null; then
+                echo "Installing $name..."
+                eval "$install_cmd"
+            else
+                echo "$name is already available. Skipping..."
+            fi
+        done < "$list_file"
+    fi
+done
 
 echo "Core Tools installed."
