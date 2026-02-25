@@ -15,4 +15,3 @@ sl
 fzf
 gh
 jq
-lazygit
