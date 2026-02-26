@@ -78,10 +78,19 @@ fi
 
 echo "Setting up dotfiles from $DOTFILES_DIR"
 
-# OS Specific requirements and git installation
+# OS Specific requirements
 OS="$(uname)"
 if [ "$OS" == "Darwin" ]; then
-    if command -v xcodebuild &> /dev/null && xcode-select -p | grep -q "Xcode.app"; then
+    # Check if Xcode Command Line Tools are installed
+    if ! xcode-select -p &>/dev/null; then
+        echo "Xcode Command Line Tools not found. Installing..."
+        # This will trigger the interactive installation dialog on macOS
+        xcode-select --install
+        echo "Please complete the installation dialog and run this script again."
+        exit 0
+    fi
+
+    if command -v xcodebuild &> /dev/null && xcode-select -p 2>/dev/null | grep -q "Xcode.app"; then
         sudo xcodebuild -license accept || echo "Skipping Xcode license."
     fi
 elif [ "$OS" == "Linux" ]; then
@@ -94,7 +103,7 @@ elif [ "$OS" == "Linux" ]; then
     fi
 fi
 
-# 1. Get the repository
+# Get the repository
 if [ ! -d "$DOTFILES_DIR" ]; then
     echo "Cloning repository to $DOTFILES_DIR..."
     git clone "$REPO_URL" "$DOTFILES_DIR"
