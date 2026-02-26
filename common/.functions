@@ -1,17 +1,17 @@
-# Shell Functions
+# --- Shell Functions / シェル関数 ---
 
-# Translation (requires translate-shell)
-# Usage: transen "Hello"
+# --- Translation / 翻訳 (requires translate-shell) ---
+# Usage: transen "Hello" / 英語から日本語へ翻訳
 transen () {
     trans en:ja "$1"
 }
 
-# Usage: transja "こんにちは"
+# Usage: transja "こんにちは" / 日本語から英語へ翻訳
 transja () {
     trans ja:en "$1"
 }
 
-# Usage: stransen "Hello" (Brief mode)
+# Usage: stransen "Hello" (Brief mode) / 翻訳結果のみを簡潔に表示
 stransen () {
     trans -b en:ja "$1"
 }
@@ -21,18 +21,20 @@ stransja () {
     trans -b ja:en "$1"
 }
 
-# Make a directory and enter it
+# --- Utilities / ユーティリティ ---
+
+# Create a directory and enter it / フォルダを作成して中に入る
 # Usage: mkd my_folder
 mkd() {
     mkdir -p "$@" && cd "$@"
 }
 
-# Display PATH in a readable list
+# Display PATH in a readable list / パスを改行して見やすく表示
 path() {
     echo $PATH | tr ":" "\n"
 }
 
-# Extract any archive
+# Extract any archive / あらゆる圧縮ファイルを解凍
 # Usage: extract filename
 extract() {
     if [ -f "$1" ] ; then

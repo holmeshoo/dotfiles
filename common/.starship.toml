@@ -1,19 +1,15 @@
-# Starship Configuration
+# Starship Configuration / Starship 設定
 # https://starship.rs/config/
 
-format = """
-$directory
-$git_branch
-$git_status
-$node
-$python
-$rust
-$golang
-$line_break
-$character"""
+# Main format / メインレイアウト
+# '$all' displays all applicable modules / 有効なすべてのモジュールを表示
+format = """$all$line_break$character"""
+
+# --- Module Settings / 各モジュールの設定 ---
 
 [directory]
 style = "blue bold"
+truncate_to_repo = true # Show relative path in git repos / Gitリポジトリ内では相対パス表示
 
 [git_branch]
 symbol = " "
@@ -25,3 +21,17 @@ style = "red bold"
 [character]
 success_symbol = "[➜](bold green)"
 error_symbol = "[➜](bold red)"
+
+# --- Language specific (compact) / 言語別の簡潔な表示設定 ---
+
+[nodejs]
+format = "via [ $version](bold green) "
+
+[python]
+format = "via [ $version](bold yellow) "
+
+[rust]
+format = "via [ $version](bold red) "
+
+[golang]
+format = "via [ $version](bold cyan) "

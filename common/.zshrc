@@ -1,19 +1,21 @@
-# Path to your oh-my-zsh installation.
+# --- Zsh Configuration / Zsh 設定 ---
+
+# Path to your oh-my-zsh installation / Oh My Zsh のインストールパス
 export ZSH="$HOME/.oh-my-zsh"
 
-# --- Path Settings ---
+# --- Path Settings / パス設定 ---
 
-# Homebrew
+# Homebrew initialization / Homebrew の初期化
 if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ -f /usr/local/bin/brew ]]; then
     eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# Local bin
+# Local bin path / ローカル実行ファイルのパス
 export PATH="$HOME/.local/bin:$PATH"
 
-# Android SDK
+# Android SDK settings / Android SDK の設定
 if [[ "$OSTYPE" == "darwin"* ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
 else
@@ -21,75 +23,57 @@ else
 fi
 export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
 
-# Flutter
-export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia" # macOS Web Debug
+# Flutter Web Debug browser / Flutter Web デバッグ用ブラウザ
+export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia" # macOS
 
-# Set name of the theme to load
+# --- Oh My Zsh Settings / Oh My Zsh の設定 ---
+
+# Theme / テーマ設定
 ZSH_THEME="cloud"
 
-# Which plugins would you like to load?
+# Plugins / 使用するプラグイン
 plugins=(
     git
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
 
+# Load Oh My Zsh / Oh My Zsh の読み込み
 source $ZSH/oh-my-zsh.sh
 
-# --- Advanced Zsh Settings ---
+# --- Advanced Settings / 詳細設定 ---
 
-# 1. Completion Settings
-zstyle ':completion:*' menu select # タブ補完でメニュー選択を有効化
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # 大文字小文字を区別せずに補完
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS} # 補完候補に色を付ける
+# Completion / 補完設定
+zstyle ':completion:*' menu select # Enable menu selection / 補完候補をメニュー選択可能に
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # Case-insensitive / 大文字小文字を区別しない
 
-# 2. History Settings
+# History / 履歴設定
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
-setopt hist_ignore_dups     # 直前と同じコマンドは履歴に残さない
-setopt hist_ignore_space    # スペースから始まるコマンドは履歴に残さない
-setopt share_history        # 別のターミナル間で履歴を共有する
-setopt hist_reduce_blanks   # 余分な空白を削除して記録
+setopt hist_ignore_dups     # Ignore consecutive duplicates / 直前と同じコマンドは記録しない
+setopt share_history        # Share history across terminals / ターミナル間で履歴を共有
 
-# 3. Directory Navigation
-setopt auto_cd              # ディレクトリ名だけで移動
-setopt auto_pushd           # cd時に自動でスタックに積む（popdで戻れる）
-setopt pushd_ignore_dups    # 重複したスタックを避ける
+# --- Tools Initialization / ツール初期化 ---
 
-# 4. Miscellaneous
-setopt correct              # コマンドのスペルミスを自動修正
-setopt interactive_comments # ターミナル上で # 以降をコメントとして許容
-
-# --- Tools Initialization ---
-
-# mise (Language Runtime Manager)
+# mise (Tool manager) / mise の有効化
 if [ -f "$HOME/.local/bin/mise" ]; then
-    export PATH="$HOME/.local/bin:$PATH"
     eval "$(mise activate zsh)"
 fi
 
-# Source common aliases
-if [ -f ~/.aliases ]; then
-    . ~/.aliases
-fi
+# Source common files / 共通設定の読み込み
+[ -f ~/.aliases ] && . ~/.aliases
+[ -f ~/.functions ] && . ~/.functions
 
-# Source common functions
-if [ -f ~/.functions ]; then
-    . ~/.functions
-fi
-
-# Starship Prompt
+# Starship Prompt / Starship プロンプトの起動
 if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
 fi
 
-# fzf initialization
+# fzf integration / fzf の統合
 if command -v fzf &> /dev/null; then
     source <(fzf --zsh)
 fi
 
-# Platform specific zshrc
-if [ -f ~/.zshrc_local ]; then
-    . ~/.zshrc_local
-fi
+# Platform specific local settings / プラットフォーム固有のローカル設定
+[ -f ~/.zshrc_local ] && . ~/.zshrc_local

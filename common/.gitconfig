@@ -1,26 +1,35 @@
+# --- Git Configuration / Git 設定 ---
+
 [user]
 	# name = Your Name
 	# email = your.email@example.com
+
 [core]
 	editor = vim
 	autocrlf = input
+	# Use delta as pager for better diffs / 差分表示に delta を使用
 	pager = delta
+
 [init]
 	defaultBranch = main
+
 [pull]
 	rebase = false
+
 [push]
+	# Automatically setup remote tracking on push / プッシュ時に自動でリモート追跡を設定
 	autoSetupRemote = true
 
 [commit]
+	# Use commit message template / コミットメッセージのテンプレートを使用
 	template = ~/.gitmessage
 
 [interactive]
 	diffFilter = delta --color-only
 
 [delta]
-	navigate = true    # use n and N to move between diff sections
-	light = false      # set to true if you're using a light terminal theme
+	navigate = true    # use n and N to move between diff sections / nとNで差分間を移動
+	light = false      # set to true for light backgrounds / ライトテーマの場合は true に
 	side-by-side = true
 	line-numbers = true
 
@@ -28,22 +37,25 @@
 	conflictstyle = zdiff3
 
 [alias]
-	# Basic
+	# --- Basic ---
 	st = status
 	co = checkout
 	br = branch
 	ci = commit
 	
-	# Logging
+	# --- Logging / ログ ---
+	# Pretty graph log / 綺麗にグラフ表示
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 	last = log -1 HEAD
 	
-	# Diff
+	# --- Diff / 差分 ---
 	df = diff
 	dc = diff --cached
 	
-	# Cleanup
+	# --- Cleanup / 掃除 ---
+	# Delete local branches that are gone on remote / リモートで消されたブランチをローカルでも一括削除
 	gone = ! "git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d"
 
 [include]
+	# Load machine-specific settings / PC個別の設定を読み込む
 	path = ~/.gitconfig.local

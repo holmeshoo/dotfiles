@@ -1,12 +1,21 @@
+# EditorConfig: http://EditorConfig.org
+
 root = true
 
 [*]
+# Use spaces for indentation / インデントにスペースを使用
 indent_style = space
+# Indent size / インデント幅
 indent_size = 4
+# Line ending / 改行コード
 end_of_line = lf
+# Character set / 文字コード
 charset = utf-8
+# Remove trailing whitespace on save / 行末の空白を削除
 trim_trailing_whitespace = true
+# Ensure final newline on save / ファイル末尾に空行を挿入
 insert_final_newline = true
 
 [*.{bat,ps1}]
+# Use CRLF for Windows scripts / Windows用スクリプトはCRLFを使用
 end_of_line = crlf
