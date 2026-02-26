@@ -59,6 +59,7 @@ if ! command -v mise &> /dev/null; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Initialize mise
 eval "$(mise activate bash)"
 
 # Global NPM Packages 
@@ -66,6 +67,8 @@ NPM_LIST="$DOTFILES_DIR/common/npm-packages.txt"
 if [ -f "$NPM_LIST" ]; then
     echo "Ensuring Node.js is available via mise..."
     mise use --global node@lts
+    # Refresh mise to make npm available immediately
+    eval "$(mise activate bash)"
     
     echo "Installing global NPM packages..."
     while read -r pkg || [ -n "$pkg" ]; do
@@ -81,6 +84,8 @@ CARGO_LIST="$DOTFILES_DIR/common/cargo-packages.txt"
 if [ -f "$CARGO_LIST" ]; then
     echo "Ensuring Rust is available via mise..."
     mise use --global rust@latest
+    # Refresh mise to make cargo available immediately
+    eval "$(mise activate bash)"
     
     echo "Installing global Cargo packages..."
     while read -r pkg || [ -n "$pkg" ]; do
