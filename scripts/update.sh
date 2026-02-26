@@ -34,22 +34,21 @@ fi
 # Update NPM Global Packages
 echo -e "
 [4/5] Updating global NPM packages..."
-if command -v npm &>/dev/null; then
-    npm update -g
+if command -v mise &>/dev/null; then
+    mise exec node@lts -- npm update -g
 fi
 
 # Update Cargo Global Packages
 echo -e "
 [5/5] Updating global Cargo packages..."
-if command -v cargo &>/dev/null; then
-    # Re-run install for each package in our list to ensure latest version
+if command -v mise &>/dev/null; then
     CARGO_LIST="$DOTFILES_DIR/common/cargo-packages.txt"
     if [ -f "$CARGO_LIST" ]; then
         while read -r pkg || [ -n "$pkg" ]; do
             [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
             pkg=$(echo "$pkg" | xargs)
             echo "  -> Updating $pkg"
-            cargo install "$pkg"
+            mise exec rust@latest -- cargo install "$pkg"
         done < "$CARGO_LIST"
     fi
 fi
