@@ -130,8 +130,11 @@ fi
 for links_file in "${LINKS_FILES[@]}"; do
     if [ -f "$links_file" ]; then
         echo "Processing links from $(basename "$links_file")..."
-        while IFS=':' read -r src_name dst_rel || [ -n "$src_name" ]; do
-            [[ "$src_name" =~ ^#.*$ || -z "$src_name" ]] && continue
+        while read -r line || [ -n "$line" ]; do
+            [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
+            
+            src_name=$(echo "$line" | cut -d: -f1 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+            dst_rel=$(echo "$line" | cut -d: -f2 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
             
             source="$DOTFILES_DIR/common/$src_name"
             target="$HOME/$dst_rel"
@@ -158,7 +161,7 @@ for links_file in "${LINKS_FILES[@]}"; do
             
             echo "Linking $dst_rel"
             ln -s "$source" "$target"
-        done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$links_file")
+        done < "$links_file"
     fi
 done
 

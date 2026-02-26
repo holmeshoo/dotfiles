@@ -11,16 +11,21 @@ install_from_list() {
     local list_file="$1"
     if [ -f "$list_file" ]; then
         echo "Processing external fonts from $(basename "$list_file")..."
-        while IFS=':' read -r name check_cmd install_cmd || [ -n "$name" ]; do
-            [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+        while read -r line || [ -n "$line" ]; do
+            [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
             
+            # Safely split by the first two colons only
+            name=$(echo "$line" | cut -d: -f1 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+            check_cmd=$(echo "$line" | cut -d: -f2 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+            install_cmd=$(echo "$line" | cut -d: -f3- | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+
             if ! eval "$check_cmd" &>/dev/null; then
                 echo "Installing $name..."
                 eval "$install_cmd"
             else
                 echo "$name is already installed."
             fi
-        done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$list_file")
+        done < "$list_file"
     fi
 }
 

@@ -47,6 +47,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 ### Core Tools (ツール)
 OSそのものを便利にするための「インフラ的な道具」です。
 - 特徴: 開発言語に関わらず常に使用するもの。OS標準のパッケージマネージャ、およびグローバルな `npm`/`cargo` パッケージとして管理されます。
+- 自動化: 依存関係の解決のため、`mise` および主要なランタイム（Node.js, Rust）はこのステップで自動的にセットアップされます。
 - 例: `git`, `micro`, `starship`, `tmux`, `fzf`, `rg` (ripgrep), `bat`, `gemini-cli` など。
 - 管理ファイル: `macos/Brewfile.core`, `linux/apt-packages.txt`, `windows/winget-packages.txt`, `common/npm-packages.txt`, `common/cargo-packages.txt`
 

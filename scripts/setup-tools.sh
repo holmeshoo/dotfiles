@@ -23,7 +23,7 @@ elif [ "$OS" == "Linux" ]; then
     fi
 fi
 
-# External tools via URL
+# External tools via URL 
 LISTS=()
 if [ "$OS" == "Darwin" ]; then
     LISTS+=("$DOTFILES_DIR/macos/external-tools.txt")
@@ -34,16 +34,21 @@ fi
 for list_file in "${LISTS[@]}"; do
     if [ -f "$list_file" ]; then
         echo "Processing external tools from $(basename "$list_file")..."
-        while IFS=':' read -r name check_cmd install_cmd || [ -n "$name" ]; do
-            [[ "$name" =~ ^#.*$ || -z "$name" ]] && continue
+        while read -r line || [ -n "$line" ]; do
+            [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
             
+            # Safely split by the first two colons only
+            name=$(echo "$line" | cut -d: -f1 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+            check_cmd=$(echo "$line" | cut -d: -f2 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+            install_cmd=$(echo "$line" | cut -d: -f3- | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+
             if ! eval "$check_cmd" &>/dev/null; then
                 echo "Installing $name..."
                 eval "$install_cmd"
             else
                 echo "$name is already available. Skipping..."
             fi
-        done < <(sed 's/[[:space:]]*:[[:space:]]*/:/g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$list_file")
+        done < "$list_file"
     fi
 done
 
@@ -65,9 +70,10 @@ if [ -f "$NPM_LIST" ]; then
     echo "Installing global NPM packages..."
     while read -r pkg || [ -n "$pkg" ]; do
         [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
+        pkg=$(echo "$pkg" | xargs)
         echo "  -> $pkg"
         npm install -g "$pkg"
-    done < <(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' "$NPM_LIST")
+    done < "$NPM_LIST"
 fi
 
 # Global Cargo Packages 
@@ -79,9 +85,10 @@ if [ -f "$CARGO_LIST" ]; then
     echo "Installing global Cargo packages..."
     while read -r pkg || [ -n "$pkg" ]; do
         [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
+        pkg=$(echo "$pkg" | xargs)
         echo "  -> $pkg"
         cargo install "$pkg"
-    done < <(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' "$CARGO_LIST")
+    done < "$CARGO_LIST"
 fi
 
 echo "Core Tools installed."
