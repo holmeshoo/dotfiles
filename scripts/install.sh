@@ -167,9 +167,11 @@ done
 
 # init OS-specific settings
 if [ "$OS" == "Darwin" ]; then
-    source "$DOTFILES_DIR/macos/init.sh"
+    bash "$DOTFILES_DIR/macos/init.sh"
+    [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+    [ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
 elif [ "$OS" == "Linux" ]; then
-    source "$DOTFILES_DIR/linux/init.sh"
+    bash "$DOTFILES_DIR/linux/init.sh"
 fi
 
 bash "$SCRIPTS_DIR/setup-shell.sh"
