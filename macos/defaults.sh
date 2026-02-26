@@ -43,8 +43,15 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 # 名前で並べ替えた時にフォルダを上にする
 defaults write com.apple.finder _FXSortFoldersFirst -bool true
 
+# タイトルバーにフルパスを表示する
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
+
 # iCloudへのデフォルト保存を無効化する
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+
+# ファイル保存ダイアログを常に詳細表示にする
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
 
 ###############################################################################
 # Dock & Mission Control                                                      #
@@ -52,6 +59,10 @@ defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
 # Dockを自動的に隠す
 defaults write com.apple.dock autohide -bool true
+
+# Dockに入っている固定アプリをすべて削除する (クリーンな状態にする)
+defaults write com.apple.dock persistent-apps -array
+defaults write com.apple.dock persistent-others -array
 
 # Dockの位置を右側に設定
 defaults write com.apple.dock orientation -string "right"
@@ -84,6 +95,9 @@ defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
 
 # クイックルックの表示を高速化する
 defaults write -g QLPanelAnimationDuration -float 0
+
+# キーの長押しでアクセント記号メニューが出るのを無効化 (キーリピートを優先)
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 ###############################################################################
 # Screen Capture                                                              #
