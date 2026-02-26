@@ -12,7 +12,26 @@ echo -e "${GREEN}--- Updating System and Tools ---${NC}"
 # Update Dotfiles Repository
 echo -e "
 [1/5] Updating dotfiles repository..."
-cd "$DOTFILES_DIR" && git pull
+cd "$DOTFILES_DIR"
+
+# Temporarily stash local changes
+HAS_CHANGES=$(git status --porcelain)
+if [ -n "$HAS_CHANGES" ]; then
+    echo "  -> Stashing local changes..."
+    git stash push -m "Automatic stash by update.sh" &>/dev/null
+fi
+
+if git pull; then
+    # Re-apply stashed changes
+    if [ -n "$HAS_CHANGES" ]; then
+        echo "  -> Re-applying local changes..."
+        git stash pop &>/dev/null || echo -e "${YELLOW}Notice: Conflicts occurred while re-applying local changes. Please resolve manually.${NC}"
+    fi
+else
+    echo -e "${RED}Error: Failed to pull updates from repository.${NC}"
+    echo "Please resolve any conflicts in $DOTFILES_DIR manually."
+    exit 1
+fi
 
 # Update Package Managers
 echo -e "
@@ -27,7 +46,9 @@ fi
 echo -e "
 [3/5] Updating mise (languages)..."
 if command -v mise &>/dev/null; then
-    mise self-update -y
+    if [ "$OS" != "Darwin" ]; then
+        mise self-update -y 2>/dev/null || echo "  -> mise is managed by package manager, skipping self-update."
+    fi
     mise upgrade --yes
 fi
 

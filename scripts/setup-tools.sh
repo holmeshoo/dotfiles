@@ -9,9 +9,9 @@ DOTFILES_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Platform-specific standard packages
 if [ "$OS" == "Darwin" ]; then
-    BREWFILE="$DOTFILES_DIR/macos/Brewfile.core"
+    BREWFILE="$DOTFILES_DIR/macos/Brewfile.tools"
     if [ -f "$BREWFILE" ]; then
-        echo "Installing core packages from Brewfile.core..."
+        echo "Installing tools from Brewfile.tools..."
         brew bundle --file="$BREWFILE" --verbose
     fi
 elif [ "$OS" == "Linux" ]; then

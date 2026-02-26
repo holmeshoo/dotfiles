@@ -1,4 +1,4 @@
-# プロフェッショナル・マルチプラットフォーム Dotfiles
+# Holmes Dotfiles
 
 macOS, Linux, Windows（後述する通り作っただけ） に対応した dotfiles リポジトリです。CLI ツール、プログラミング言語のランタイム、GUI アプリ、フォント、システム設定の構築を自動化します。
 
@@ -9,6 +9,7 @@ macOS, Linux, Windows（後述する通り作っただけ） に対応した dot
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/holmeshoo/dotfiles/main/scripts/install.sh)"
 ```
+**注意 (macOS)**: Xcode Command Line Tools が未インストールの場合、Apple の規約により GUI での同意とインストールが必要です。ダイアログが表示されたら、インストールを完了させてから **もう一度上記のコマンドを実行してください。**
 
 ### Windows
 PowerShell（管理者権限）で以下のコマンドを実行してください：
@@ -18,9 +19,8 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 ## 主な特徴
 
-- マルチプラットフォーム対応: macOS (Homebrew), Linux (Apt/Snap), Windows (Winget) をフルサポートしています。
+- マルチプラットフォーム対応: macOS (Homebrew), Linux (Apt/Snap), Windows (Winget) をサポート(windowsを除く)しています。
 - モジュール化とデータ駆動: 設定はシンプルなテキストファイルに分離されています。新しいツールやフォントを追加する際、シェルスクリプトを直接編集する必要はありません。
-- 対話型インストーラー: グラフィカルなメニューから、インストールしたい項目（Coreツール、ランタイム、アプリ、フォント）を自由に選択できます。
 - 言語環境の一元管理: [mise](common/.mise.toml) を使用し、Node, Python, Go, Rust, Java, Haskell, Flutter などの開発環境を一括管理します。
 - 快適なターミナル環境: Zsh, Oh My Zsh, Starship プロンプト, fzf による履歴検索, tmux を統合したモダンな環境を提供します。
 - VSCode の同期: 拡張機能の自動インストールと settings.json の同期機能を備えています。
@@ -49,7 +49,7 @@ OSそのものを便利にするための「インフラ的な道具」です。
 - 特徴: 開発言語に関わらず常に使用するもの。OS標準のパッケージマネージャ、およびグローバルな `npm`/`cargo` パッケージとして管理されます。
 - 自動化: 依存関係の解決のため、`mise` および主要なランタイム（Node.js, Rust）はこのステップで自動的にセットアップされます。
 - 例: `git`, `micro`, `starship`, `tmux`, `fzf`, `rg` (ripgrep), `bat`, `gemini-cli` など。
-- 管理ファイル: `macos/Brewfile.core`, `linux/apt-packages.txt`, `windows/winget-packages.txt`, `common/npm-packages.txt`, `common/cargo-packages.txt`
+- 管理ファイル: `macos/Brewfile.tools`, `linux/apt-packages.txt`, `windows/winget-packages.txt`, `common/npm-packages.txt`, `common/cargo-packages.txt`
 
 ### Language Runtimes (ランタイム)
 コードを書いたり実行したりするための「言語環境」です。
@@ -100,9 +100,16 @@ GUIを持つ大型のソフトウェアです。
 
 ## カスタマイズ方法
 
-本リポジトリをそのまま使用するのではなく、**Fork（フォーク）して自分専用のリポジトリとして運用すること**を強く推奨します。設定ファイルやツールリストを自分の好みに合わせて書き換え、自分だけの快適な開発環境を育てていってください。
+### 自分専用の設定を追加する（推奨）
+本リポジトリでは、Git の追跡対象外となっている `.local` ファイルを使用して、PC 個別のカスタマイズを安全に行うことができます。**これらのファイルに書いた設定は `scripts/update.sh` を実行しても上書き・削除されることはありません。**
 
-自分のツールや設定を追加するには、以下の各ファイルを編集してください：
+- **Zsh**: `~/.zshrc_local` に記述
+- **Bash**: `~/.bashrc_local` に記述
+- **Git**: `~/.gitconfig.local` に記述（ユーザー名やメールアドレスなど）
+- **SSH**: `~/.ssh/config.local` に記述
+
+### 全体的なカスタマイズ
+リポジトリ内のツールリストを編集することで、インストール対象を変更できます：
 - CLI ツール: [macos/Brewfile.core](macos/Brewfile.core), [linux/apt-packages.txt](linux/apt-packages.txt), [windows/winget-packages.txt](windows/winget-packages.txt)
 - GUI アプリ: [macos/Brewfile.apps](macos/Brewfile.apps), [linux/external-apps.txt](linux/external-apps.txt), [windows/winget-apps.txt](windows/winget-apps.txt)
 - フォント: [macos/Brewfile.fonts](macos/Brewfile.fonts), [linux/external-fonts.txt](linux/external-fonts.txt), [windows/winget-fonts.txt](windows/winget-fonts.txt)

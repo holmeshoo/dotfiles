@@ -95,7 +95,7 @@ if [ "$TEST_CORE" = true ]; then
     echo -e "\n[2. Core Tools]"
     if [ "$OS" == "Darwin" ]; then
         check_status "Homebrew" "command -v brew"
-        BREWFILE="$(dirname "$0")/../macos/Brewfile.core"
+        BREWFILE="$(dirname "$0")/../macos/Brewfile.tools"
         if [ -f "$BREWFILE" ]; then
             grep '^brew "' "$BREWFILE" | sed 's/brew "\(.*\)"/\1/' | while read -r pkg; do
                 case $pkg in
