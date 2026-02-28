@@ -1,8 +1,8 @@
 name: Dotfiles CI
 
 on:
-  # push:
-  #   branches: [ main ]
+  push:
+    branches: [ main ]
   # pull_request:
   #   branches: [ main ]
   workflow_dispatch:
@@ -74,10 +74,10 @@ jobs:
         run: |
           $homeDir = $HOME
           Write-Host "Checking files in: $homeDir"
-          
+
           # install.ps1 creates filenames like ".gitconfig" in the $HOME directory
           $files = @(".gitconfig", ".vimrc", ".editorconfig", ".functions")
-          
+
           foreach ($f in $files) {
             $path = Join-Path $homeDir $f
             if (Test-Path $path) {
@@ -89,7 +89,7 @@ jobs:
               exit 1
             }
           }
-          
+
           # Check commands
           $cmds = @("git", "micro")
           foreach ($c in $cmds) {

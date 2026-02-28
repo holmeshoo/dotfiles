@@ -23,7 +23,7 @@ elif [ "$OS" == "Linux" ]; then
     fi
 fi
 
-# External tools via URL 
+# External tools via URL
 LISTS=()
 if [ "$OS" == "Darwin" ]; then
     LISTS+=("$DOTFILES_DIR/macos/external-tools.txt")
@@ -36,7 +36,7 @@ for list_file in "${LISTS[@]}"; do
         echo "Processing external tools from $(basename "$list_file")..."
         while read -r line || [ -n "$line" ]; do
             [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
-            
+
             name=$(echo "$line" | cut -d: -f1 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
             check_cmd=$(echo "$line" | cut -d: -f2 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
             install_cmd=$(echo "$line" | cut -d: -f3- | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
@@ -56,6 +56,8 @@ if ! command -v mise &> /dev/null; then
     echo "Forcing mise installation for global packages..."
     curl https://mise.jdx.dev/install.sh | sh
     export PATH="$HOME/.local/bin:$PATH"
+    mise trust "$DOTFILES_DIR/common/.mise.toml
+
 fi
 
 # Global NPM Packages (Ensuring Node.js exists and using mise exec)
@@ -63,7 +65,7 @@ NPM_LIST="$DOTFILES_DIR/common/npm-packages.txt"
 if [ -f "$NPM_LIST" ]; then
     echo "Ensuring Node.js is available via mise..."
     mise use --global node@lts
-    
+
     echo "Installing global NPM packages..."
     while read -r pkg || [ -n "$pkg" ]; do
         [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
@@ -78,7 +80,7 @@ CARGO_LIST="$DOTFILES_DIR/common/cargo-packages.txt"
 if [ -f "$CARGO_LIST" ]; then
     echo "Ensuring Rust is available via mise..."
     mise use --global rust@latest
-    
+
     echo "Installing global Cargo packages..."
     while read -r pkg || [ -n "$pkg" ]; do
         [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
