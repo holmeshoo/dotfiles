@@ -56,8 +56,7 @@ if ! command -v mise &> /dev/null; then
     echo "Forcing mise installation for global packages..."
     curl https://mise.jdx.dev/install.sh | sh
     export PATH="$HOME/.local/bin:$PATH"
-    mise trust "$DOTFILES_DIR/common/.mise.toml
-
+    mise trust "$DOTFILES_DIR/common/.mise.toml"
 fi
 
 # Global NPM Packages (Ensuring Node.js exists and using mise exec)
