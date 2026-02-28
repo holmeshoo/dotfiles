@@ -14,6 +14,29 @@ Thumbs.db
 .env.local
 .netrc
 
+# common/ (Whitelist approach)
+common/*
+!common/.ssh/
+!common/vscode/
+!common/.aliases
+!common/.bashrc
+!common/.editorconfig
+!common/.functions
+!common/.gitconfig
+!common/.gitmessage
+!common/.mise.toml
+!common/.starship.toml
+!common/.tmux.conf
+!common/.vimrc
+!common/.zshrc
+!common/cargo-packages.txt
+!common/links.txt
+!common/local-files.txt
+!common/npm-packages.txt
+!common/vscode-extensions.txt
+!common/.ssh/config
+!common/vscode/settings.json
+
 # Editor backups and swap files
 *~
 *.swp
