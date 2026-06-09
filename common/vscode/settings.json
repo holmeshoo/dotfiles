@@ -75,5 +75,38 @@
         "pkl": "cd $dir && pkl eval -f yaml $fileName -o $fileNameWithoutExt.yaml",
         "gleam": "gleam run -m $fileNameWithoutExt"
     },
-    "git.autofetch": true
+    "git.autofetch": true,
+    "explorer.confirmDragAndDrop": false,
+    "python.terminal.activateEnvironment": false,
+    "python-envs.terminal.autoActivationType": "off",
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#e16200",
+        "titleBar.activeForeground": "#FFF7ED",
+        "titleBar.inactiveBackground": "#5F2E05",
+        "titleBar.inactiveForeground": "#FED7AA",
+        "statusBar.background": "#e16200",
+        "statusBar.foreground": "#FFF7ED",
+        "statusBarItem.remoteBackground": "#e16200",
+        "statusBarItem.remoteForeground": "#FFFFFF",
+        "statusBarItem.hoverBackground": "#C2410C",
+        "activityBar.background": "#e16200",
+        "activityBar.foreground": "#ffffff",
+        "activityBar.inactiveForeground": "#FDBA74",
+        "activityBarBadge.background": "#FDBA74",
+        "activityBarBadge.foreground": "#431407",
+        // "terminal.background": "#1C0F05",
+        // "terminal.foreground": "#FFE7C2",
+        // "terminalCursor.foreground": "#FDBA74",
+        // "terminal.selectionBackground": "#7C2D12"
+    },
+    "json.schemaDownload.trustedDomains": {
+        "https://schemastore.azurewebsites.net/": true,
+        "https://raw.githubusercontent.com/microsoft/vscode/": true,
+        "https://raw.githubusercontent.com/devcontainers/spec/": true,
+        "https://www.schemastore.org/": true,
+        "https://json.schemastore.org/": true,
+        "https://json-schema.org/": true,
+        "https://developer.microsoft.com/json-schemas/": true,
+        "https://biomejs.dev": true
+    }
 }

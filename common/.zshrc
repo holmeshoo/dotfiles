@@ -77,3 +77,5 @@ fi
 
 # Platform specific local settings / プラットフォーム固有のローカル設定
 [ -f ~/.zshrc_local ] && . ~/.zshrc_local
+
+eval "$(direnv hook zsh)"

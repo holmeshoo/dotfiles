@@ -7,3 +7,7 @@ cask "visual-studio-code"
 cask "thebrowsercompany-dia"
 cask "vivaldi"
 cask "android-studio"
+# office
+cask microsoft-excel
+cask microsoft-powerpoint
+cask microsoft-word

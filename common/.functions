@@ -56,3 +56,14 @@ extract() {
         echo "'$1' is not a valid file"
     fi
 }
+
+# Start docker / Dockerをスタートする
+start_docker() {
+    colima start
+}
+
+# Stop docker / Dockerを閉じる
+stop_docker() {
+    colima stop
+}
+
