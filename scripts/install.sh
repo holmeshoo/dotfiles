@@ -1,6 +1,6 @@
 set -e
 
-# Root Check
+# Root Check 
 if [ "$EUID" -eq 0 ]; then
     echo "Error: Please do not run this script as root or with sudo."
     exit 1
@@ -80,7 +80,7 @@ echo "Setting up dotfiles from $DOTFILES_DIR"
 
 # OS Specific requirements
 OS="$(uname)"
-if [ "$OS" == "Mac" ]; then
+if [ "$OS" == "Darwin" ]; then
     # Check if Xcode Command Line Tools are installed
     if ! xcode-select -p &>/dev/null; then
         echo "Xcode Command Line Tools not found. Installing..."
@@ -130,7 +130,7 @@ fi
 
 # Read and apply links
 LINKS_FILES=("$DOTFILES_DIR/common/links.txt")
-if [ "$OS" == "Mac" ]; then
+if [ "$OS" == "Darwin" ]; then
     LINKS_FILES+=("$DOTFILES_DIR/macos/links.txt")
 elif [ "$OS" == "Linux" ]; then
     LINKS_FILES+=("$DOTFILES_DIR/linux/links.txt")
@@ -141,20 +141,20 @@ for links_file in "${LINKS_FILES[@]}"; do
         echo "Processing links from $(basename "$links_file")..."
         while read -r line || [ -n "$line" ]; do
             [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
-
+            
             src_name=$(echo "$line" | cut -d: -f1 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
             dst_rel=$(echo "$line" | cut -d: -f2 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
-
+            
             source="$DOTFILES_DIR/common/$src_name"
             target="$HOME/$dst_rel"
-
+            
             if [ ! -f "$source" ]; then
                 echo "Warning: Source file $source not found. Skipping."
                 continue
             fi
-
+            
             mkdir -p "$(dirname "$target")"
-
+            
             if [[ "$dst_rel" == ".ssh/"* ]]; then
                 chmod 700 "$HOME/.ssh" 2>/dev/null || true
             fi
@@ -163,11 +163,11 @@ for links_file in "${LINKS_FILES[@]}"; do
                 echo "Backing up $target"
                 mv "$target" "/tmp/$(basename "$target").bak"
             fi
-
+            
             if [ -L "$target" ] || [ -e "$target" ]; then
                 rm -rf "$target"
             fi
-
+            
             echo "Linking $dst_rel"
             ln -s "$source" "$target"
         done < "$links_file"
@@ -175,7 +175,7 @@ for links_file in "${LINKS_FILES[@]}"; do
 done
 
 # init OS-specific settings
-if [ "$OS" == "Mac" ]; then
+if [ "$OS" == "Darwin" ]; then
     bash "$DOTFILES_DIR/macos/init.sh"
     [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
     [ -f /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"

@@ -7,7 +7,7 @@ echo "Installing Heavy Applications..."
 OS="$(uname)"
 
 # macOS: Heavy Apps via Brewfile.apps
-if [ "$OS" == "Mac" ]; then
+if [ "$OS" == "Darwin" ]; then
     BREWFILE="$(dirname "$0")/../macos/Brewfile.apps"
     if [ -f "$BREWFILE" ]; then
         echo "Installing apps from Brewfile.apps..."
@@ -21,7 +21,7 @@ if [ "$OS" == "Linux" ]; then
     if [ -f "$LIST" ]; then
         while read -r line || [ -n "$line" ]; do
             [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
-
+            
             # Safely split by the first two colons only
             name=$(echo "$line" | cut -d: -f1 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
             check_cmd=$(echo "$line" | cut -d: -f2 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')

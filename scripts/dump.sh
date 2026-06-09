@@ -19,13 +19,13 @@ if command -v code &>/dev/null; then
 fi
 
 # 2. Homebrew (macOS only)
-if [ "$OS" == "Mac" ] && command -v brew &>/dev/null; then
+if [ "$OS" == "Darwin" ] && command -v brew &>/dev/null; then
     echo -e "
 [2/3] Dumping Homebrew packages..."
     # Create a temporary Brewfile
     brew bundle dump --force --file="/tmp/Brewfile"
-
-    # In a perfect world, we'd split this into .core and .apps,
+    
+    # In a perfect world, we'd split this into .core and .apps, 
     # but for simplicity in a dump script, we'll notify the user.
     echo -e "${YELLOW}Note: Current Homebrew state dumped to /tmp/Brewfile.${NC}"
     echo "Please manually update macos/Brewfile.core and Brewfile.apps if needed."

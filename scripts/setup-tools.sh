@@ -8,7 +8,7 @@ OS="$(uname)"
 DOTFILES_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Platform-specific standard packages
-if [ "$OS" == "Mac" ]; then
+if [ "$OS" == "Darwin" ]; then
     BREWFILE="$DOTFILES_DIR/macos/Brewfile.tools"
     if [ -f "$BREWFILE" ]; then
         echo "Installing tools from Brewfile.tools..."
@@ -25,7 +25,7 @@ fi
 
 # External tools via URL
 LISTS=()
-if [ "$OS" == "Mac" ]; then
+if [ "$OS" == "Darwin" ]; then
     LISTS+=("$DOTFILES_DIR/macos/external-tools.txt")
 elif [ "$OS" == "Linux" ]; then
     LISTS+=("$DOTFILES_DIR/linux/external-tools.txt")

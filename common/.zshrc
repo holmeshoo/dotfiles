@@ -16,7 +16,7 @@ fi
 export PATH="$HOME/.local/bin:$PATH"
 
 # Android SDK settings / Android SDK の設定
-if [[ "$OSTYPE" == "Mac"* ]]; then
+if [[ "$OSTYPE" == "darwin"* ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
 else
     export ANDROID_HOME="$HOME/Android/Sdk"
