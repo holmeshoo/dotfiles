@@ -13,12 +13,14 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
-# Git operations / Git 操作의短縮
+# Git operations / Git 操作系短縮
 alias gs='git status' # Status check / 状態確認
 alias ga='git add'    # Stage changes / 変更をステージング
+alias gaa='git add .'    # Stage changes / 変更をステージング
 alias gc='git commit' # Commit / コミット
 alias gp='git push'   # Push / プッシュ
 alias gl='git log --oneline --graph --all' # Pretty log graph / ログをグラフで表示
+alias g ='git' # git /単純な短縮
 
 # Docker operations / Docker 操作の効率化
 alias d='docker'
@@ -26,3 +28,9 @@ alias dc='docker-compose'
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"' # Clean list / コンテナをスッキリ表示
 alias di='docker images' # List images / イメージ一覧
 alias drm='docker stop $(docker ps -aq) && docker rm $(docker ps -aq)' # Stop & remove all / 全コンテナの停止と削除
+
+# Tmux operations
+alias t = "tmux new -s"
+alias tl = "tmux ls"
+alias tt = "tmux a -t"
+alias tr = "tmux rename -t"
