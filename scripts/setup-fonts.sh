@@ -13,7 +13,7 @@ install_from_list() {
         echo "Processing external fonts from $(basename "$list_file")..."
         while read -r line || [ -n "$line" ]; do
             [[ "$line" =~ ^#.*$ || -z "$line" ]] && continue
-            
+
             # Safely split by the first two colons only
             name=$(echo "$line" | cut -d: -f1 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
             check_cmd=$(echo "$line" | cut -d: -f2 | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
@@ -30,7 +30,7 @@ install_from_list() {
 }
 
 # macOS specific: Brewfile.fonts
-if [ "$OS" == "Darwin" ]; then
+if [ "$OS" == "Mac" ]; then
     BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
     if [ -f "$BREWFILE" ]; then
         echo "Installing fonts via Homebrew..."
@@ -39,7 +39,7 @@ if [ "$OS" == "Darwin" ]; then
 fi
 
 # From external external-fonts.txt
-if [ "$OS" == "Darwin" ]; then
+if [ "$OS" == "Mac" ]; then
     install_from_list "$(dirname "$0")/../macos/external-fonts.txt"
 elif [ "$OS" == "Linux" ]; then
     install_from_list "$(dirname "$0")/../linux/external-fonts.txt"

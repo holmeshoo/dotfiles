@@ -36,7 +36,7 @@ fi
 # Update Package Managers
 echo -e "
 [2/5] Updating package manager..."
-if [ "$OS" == "Darwin" ]; then
+if [ "$OS" == "Mac" ]; then
     brew update && brew upgrade
 elif [ "$OS" == "Linux" ]; then
     sudo apt-get update && sudo apt-get upgrade -y
@@ -46,7 +46,7 @@ fi
 echo -e "
 [3/5] Updating mise (languages)..."
 if command -v mise &>/dev/null; then
-    if [ "$OS" != "Darwin" ]; then
+    if [ "$OS" != "Mac" ]; then
         mise self-update -y 2>/dev/null || echo "  -> mise is managed by package manager, skipping self-update."
     fi
     mise upgrade --yes

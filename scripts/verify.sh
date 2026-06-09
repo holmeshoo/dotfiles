@@ -4,7 +4,7 @@
 OS="$(uname)"
 
 # Load Homebrew only on macOS
-if [ "$OS" == "Darwin" ]; then
+if [ "$OS" == "Mac" ]; then
     if [[ -f /opt/homebrew/bin/brew ]]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
     elif [[ -f /usr/local/bin/brew ]]; then
@@ -62,7 +62,7 @@ check_link() {
 check_status() {
     local name="$1"
     local check_expr="$2"
-    
+
     if eval "$check_expr" &>/dev/null; then
         echo -e "${GREEN}✓${NC} $name available"
     else
@@ -74,7 +74,7 @@ check_status() {
 # Symlinks
 echo -e "\n[1. Symlinks]"
 LINKS_FILES=("$(dirname "$0")/../common/links.txt")
-if [ "$OS" == "Darwin" ]; then
+if [ "$OS" == "Mac" ]; then
     LINKS_FILES+=("$(dirname "$0")/../macos/links.txt")
 elif [ "$OS" == "Linux" ]; then
     LINKS_FILES+=("$(dirname "$0")/../linux/links.txt")
@@ -93,7 +93,7 @@ done
 # Core Tools
 if [ "$TEST_CORE" = true ]; then
     echo -e "\n[2. Core Tools]"
-    if [ "$OS" == "Darwin" ]; then
+    if [ "$OS" == "Mac" ]; then
         check_status "Homebrew" "command -v brew"
         BREWFILE="$(dirname "$0")/../macos/Brewfile.tools"
         if [ -f "$BREWFILE" ]; then
@@ -119,10 +119,10 @@ if [ "$TEST_CORE" = true ]; then
             done
         fi
     fi
-    
+
     # OS-specific external tools
     EXT_TOOLS=""
-    [ "$OS" == "Darwin" ] && EXT_TOOLS="$(dirname "$0")/../macos/external-tools.txt"
+    [ "$OS" == "Mac" ] && EXT_TOOLS="$(dirname "$0")/../macos/external-tools.txt"
     [ "$OS" == "Linux" ] && EXT_TOOLS="$(dirname "$0")/../linux/external-tools.txt"
     if [ -f "$EXT_TOOLS" ]; then
         while read -r line || [ -n "$line" ]; do
@@ -143,7 +143,7 @@ fi
 # Apps
 if [ "$TEST_APPS" = true ]; then
     echo -e "\n[4. Heavy Applications]"
-    if [ "$OS" == "Darwin" ]; then
+    if [ "$OS" == "Mac" ]; then
         BREWFILE="$(dirname "$0")/../macos/Brewfile.apps"
         if [ -f "$BREWFILE" ]; then
             grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
@@ -174,7 +174,7 @@ fi
 # Fonts
 if [ "$TEST_FONTS" = true ]; then
     echo -e "\n[5. Fonts]"
-    if [ "$OS" == "Darwin" ]; then
+    if [ "$OS" == "Mac" ]; then
         BREWFILE="$(dirname "$0")/../macos/Brewfile.fonts"
         if [ -f "$BREWFILE" ]; then
             grep '^cask "' "$BREWFILE" | sed 's/cask "\(.*\)"/\1/' | while read -r pkg; do
