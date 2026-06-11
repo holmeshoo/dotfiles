@@ -26,6 +26,12 @@ export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
 # Flutter Web Debug browser / Flutter Web デバッグ用ブラウザ
 export CHROME_EXECUTABLE="/Applications/Dia.app/Contents/MacOS/Dia" # macOS
 
+# zsh-completions
+if type brew &>/dev/null; then
+  FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+  autoload -Uz compinit && compinit
+fi
+
 # --- Oh My Zsh Settings / Oh My Zsh の設定 ---
 
 # Theme / テーマ設定

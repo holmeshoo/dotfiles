@@ -14,8 +14,8 @@ osascript -e 'tell application "System Settings" to quit'
 ###############################################################################
 
 # キーのリピート速度を爆速にする
-defaults write NSGlobalDomain KeyRepeat -int 1
-defaults write NSGlobalDomain InitialKeyRepeat -int 10
+#defaults write NSGlobalDomain KeyRepeat -int 1
+#defaults write NSGlobalDomain InitialKeyRepeat -int 10
 
 # トラックパッド: タップでクリックを有効にする
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
