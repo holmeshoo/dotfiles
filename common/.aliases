@@ -20,7 +20,7 @@ alias gaa='git add .'    # Stage changes / 変更をステージング
 alias gc='git commit' # Commit / コミット
 alias gp='git push'   # Push / プッシュ
 alias gl='git log --oneline --graph --all' # Pretty log graph / ログをグラフで表示
-alias g ='git' # git /単純な短縮
+alias g='git' # git /単純な短縮
 
 # Docker operations / Docker 操作の効率化
 alias d='docker'
