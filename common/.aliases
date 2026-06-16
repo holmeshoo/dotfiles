@@ -30,7 +30,7 @@ alias di='docker images' # List images / イメージ一覧
 alias drm='docker stop $(docker ps -aq) && docker rm $(docker ps -aq)' # Stop & remove all / 全コンテナの停止と削除
 
 # Tmux operations
-alias t = "tmux new -s"
-alias tl = "tmux ls"
-alias tt = "tmux a -t"
-alias tr = "tmux rename -t"
+alias t="tmux new -s"
+alias tl="tmux ls"
+alias tt="tmux a -t"
+alias tr="tmux rename -t"
