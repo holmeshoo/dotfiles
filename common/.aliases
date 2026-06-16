@@ -18,6 +18,7 @@ alias gs='git status' # Status check / 状態確認
 alias ga='git add'    # Stage changes / 変更をステージング
 alias gaa='git add .'    # Stage changes / 変更をステージング
 alias gc='git commit' # Commit / コミット
+alias gcm='git commit -m' # Commit / コミット
 alias gp='git push'   # Push / プッシュ
 alias gl='git log --oneline --graph --all' # Pretty log graph / ログをグラフで表示
 alias g='git' # git /単純な短縮
