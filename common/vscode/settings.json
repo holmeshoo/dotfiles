@@ -116,5 +116,6 @@
         "scminput": false,
         "cpp": false,
         "python": true
-    }
+    },
+    "chatgpt.composerEnterBehavior": "cmdAlways"
 }

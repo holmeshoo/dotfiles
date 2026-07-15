@@ -17,3 +17,4 @@
 .mise.toml : .config/mise/config.toml
 .wezterm/wezterm.lua : .config/wezterm/wezterm.lua
 .wezterm/keybinds.lua : .config/wezterm/keybinds.lua
+.nvim/init.lua : .config/nvim/keybinds.lua

@@ -29,7 +29,9 @@ common/vscode/*
 
 # --- common/wezterm ---
 !common/.wezterm/
-common/wezterm/*
+
+# --- common/nvim ---
+!common/.nvim/
 
 # --- common root files ---
 !common/.aliases
