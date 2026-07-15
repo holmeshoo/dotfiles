@@ -27,6 +27,12 @@ common/.ssh/*
 common/vscode/*
 !common/vscode/settings.json
 
+# --- common/wezterm ---
+!common/wezterm/
+common/wezterm/*
+!common/wezterm/wezterm.lua
+!common/wezterm/keybinds.lua
+
 # --- common root files ---
 !common/.aliases
 !common/.bashrc
@@ -44,6 +50,7 @@ common/vscode/*
 !common/local-files.txt
 !common/npm-packages.txt
 !common/vscode-extensions.txt
+
 
 # Editor backups and swap files
 *~

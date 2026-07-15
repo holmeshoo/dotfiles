@@ -108,5 +108,13 @@
         "https://json-schema.org/": true,
         "https://developer.microsoft.com/json-schemas/": true,
         "https://biomejs.dev": true
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false,
+        "cpp": false,
+        "python": true
     }
 }
