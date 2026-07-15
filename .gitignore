@@ -28,10 +28,8 @@ common/vscode/*
 !common/vscode/settings.json
 
 # --- common/wezterm ---
-!common/wezterm/
+!common/.wezterm/
 common/wezterm/*
-!common/wezterm/wezterm.lua
-!common/wezterm/keybinds.lua
 
 # --- common root files ---
 !common/.aliases

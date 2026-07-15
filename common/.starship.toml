@@ -3,20 +3,143 @@
 
 # Main format / メインレイアウト
 # '$all' displays all applicable modules / 有効なすべてのモジュールを表示
-format = """$all$line_break$character"""
 
+format = """
+$os\
+$sudo\
+$custom\
+$direnv\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$git_metrics\
+$fill\
+$conda\
+$python\
+$lua\
+$rust\
+\n$character\
+"""
+
+right_format = """
+$cmd_duration\
+$time\
+"""
 # --- Module Settings / 各モジュールの設定 ---
+###########################################
+[os.symbols]
+Macos = "  "
+Linux = " 󰌽 "
+Ubuntu = "  "
+Debian = "  "
+
+###########################################
+[os]
+disabled = false
+format = """
+[](fg:#89b4fa)\
+[$symbol]($style)\
+[](fg:#89b4fa)\
+"""
+style = "fg:#313244 bg:#89b4fa"
+
+[sudo]
+disabled = false
+symbol = ' 󰿆 sudo'
+format = """
+[](fg:#eba0ac)\
+[$symbol]($style)\
+[](fg:#eba0ac)\
+"""
+style = "bold fg:#313244 bg:#eba0ac "
+
+[custom.venv]
+command = "basename \"$VIRTUAL_ENV\""
+when = "test -n \"$VIRTUAL_ENV\""
+format = """
+[](fg:#cba6f7)\
+[$output]($style)\
+[](fg:#cba6f7)\
+"""
+style = "bold fg:#313244 bg:#cba6f7"
+
+[direnv]
+disabled = false
+format = """
+[](fg:#89dceb)\
+[$symbol$allowed]($style)\
+[](fg:#89dceb)\
+"""
+style = "bold fg:#313244 bg:#89dceb"
 
 [directory]
-style = "blue bold"
+truncation_length = 6
+truncation_symbol = ' '
+# truncate_to_repo = false
+home_symbol = '󰋞 ~'
+read_only = ' 󰌾 '
+format = """
+[](fg:#b4befe)\
+[$path]($style)\
+[$read_only]($read_only_style)\
+[](fg:#b4befe)\
+"""
+style = 'bold fg:#313244 bg:#b4befe'
+read_only_style = 'bold fg:#313244 bg:#b4befe'
 truncate_to_repo = true # Show relative path in git repos / Gitリポジトリ内では相対パス表示
+# style = "blue bold"
+
 
 [git_branch]
-symbol = " "
-style = "magenta bold"
+symbol = '  '
+truncation_symbol = ''
+style = 'bold fg:#89dceb bg:#45475a'
+format = """
+[](fg:#45475a)\
+[$symbol$branch(:$remote_branch)]($style)\
+"""
 
 [git_status]
-style = "red bold"
+disabled = false
+style = 'bold fg:#eba0ac bg:#45475a'
+conflicted = '='
+ahead = '⇡${count}'
+behind = '⇣${count}'
+diverged = '⇕'
+up_to_date = '✓'
+untracked = '?'
+stashed = '$'
+modified = '!${count}'
+renamed = '»'
+deleted = '✘'
+format = """
+[  ](fg:#89dceb bg:#45475a)\
+[$all_status$ahead_behind]($style)\
+"""
+# style = "red bold"
+
+[git_metrics]
+disabled = false
+added_style = 'bold fg:#a6e3a1 bg:#45475a'
+deleted_style = 'bold fg:#89b4fa  bg:#45475a'
+format = """
+[  ](fg:#89dceb bg:#45475a)\
+[+$added]($added_style)[-$deleted]($deleted_style)[](fg:#45475a)\
+"""
+[fill]
+symbol = '─'
+style = 'fg:#89b4fa) bg:none'
+
+[cmd_duration]
+show_milliseconds = true
+min_time = 0
+format = '[󰞌 $duration  ](fg:#f9e2af)'
+
+[time]
+disabled = false
+format = '[ $time](bold fg:#6c7086)'
+time_format = '%T'
 
 [character]
 success_symbol = "[➜](bold green)"
@@ -25,13 +148,24 @@ error_symbol = "[➜](bold red)"
 # --- Language specific (compact) / 言語別の簡潔な表示設定 ---
 
 [nodejs]
-format = "via [ $version](bold green) "
+symbol = "via [ ](bold green) "
+format = '[](fg:#eba0ac)[ ${symbol}(${version})]($style)[](fg:#eba0ac)'
 
 [python]
-format = "via [ $version](bold yellow) "
+symbol = '[ ](fg:bold yellow bg:#8093fd)'
+format = '[](fg:#8093fd)[ ${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style)[](fg:#8093fd)'
+style = 'bold fg:#313244 bg:#8093fd'
 
-[rust]
-format = "via [ $version](bold red) "
 
 [golang]
 format = "via [ $version](bold cyan) "
+
+[lua]
+symbol = "[ ](fg:#1e66f5 bg:#89b4fa)"
+format = '[](fg:#89b4fa)[ ${symbol}(${version})]($style)[](fg:#89b4fa)'
+style = 'bold fg:#313244 bg:#89b4fa'
+
+[rust]
+symbol = "[󱘗 ](fg:#e64553 bg:#eba0ac)"
+format = '[](fg:#eba0ac)[ ${symbol}(${version})]($style)[](fg:#eba0ac)'
+style = 'bold fg:#313244 bg:#eba0ac'

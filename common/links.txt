@@ -15,5 +15,5 @@
 .ssh/config.local : .ssh/config.local
 .starship.toml : .config/starship.toml
 .mise.toml : .config/mise/config.toml
-wezterm.lua : .config/wezterm/wezterm.lua
-keybind.lua : .config/wezterm/keybinds.lua
+.wezterm/wezterm.lua : .config/wezterm/wezterm.lua
+.wezterm/keybind.lua : .config/wezterm/keybinds.lua
