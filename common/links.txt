@@ -16,4 +16,4 @@
 .starship.toml : .config/starship.toml
 .mise.toml : .config/mise/config.toml
 .wezterm/wezterm.lua : .config/wezterm/wezterm.lua
-.wezterm/keybind.lua : .config/wezterm/keybinds.lua
+.wezterm/keybinds.lua : .config/wezterm/keybinds.lua
